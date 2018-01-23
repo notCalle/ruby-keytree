@@ -21,7 +21,7 @@ RSpec.describe KeyTree::Path do
     context 'with an array' do
       context 'of symbols' do
         before :context do
-          @symbols = [:a, :b]
+          @symbols = %i[a b]
         end
 
         it 'does not raise an error' do
@@ -95,7 +95,7 @@ RSpec.describe KeyTree::Path do
 
     context 'with an array of symbols' do
       before :context do
-        @symbols = [:b, :c]
+        @symbols = %i[b c]
       end
 
       it 'does not rais an error' do
