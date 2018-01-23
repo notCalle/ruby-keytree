@@ -21,7 +21,7 @@ RSpec.describe KeyTree::Path do
     context 'with an array' do
       context 'of symbols' do
         before :context do
-          @symbols = [:a, :b]
+          @symbols = %i[a b]
         end
 
         it 'does not raise an error' do
@@ -39,7 +39,7 @@ RSpec.describe KeyTree::Path do
     context 'with a string' do
       context 'that is a simple key' do
         before :context do
-          @string = "a"
+          @string = 'a'
         end
 
         it 'does not raise an error' do
@@ -53,7 +53,7 @@ RSpec.describe KeyTree::Path do
 
       context 'that is a dot-separated path of keys' do
         before :context do
-          @string = "a.b"
+          @string = 'a.b'
           @keys = @string.split('.').map(&:to_sym)
         end
 
@@ -95,7 +95,7 @@ RSpec.describe KeyTree::Path do
 
     context 'with an array of symbols' do
       before :context do
-        @symbols = [:b, :c]
+        @symbols = %i[b c]
       end
 
       it 'does not rais an error' do
@@ -112,7 +112,7 @@ RSpec.describe KeyTree::Path do
     context 'with a string' do
       context 'that is a simple key' do
         before :context do
-          @string = "b"
+          @string = 'b'
         end
 
         it 'does not raise an error' do
@@ -126,7 +126,7 @@ RSpec.describe KeyTree::Path do
 
       context 'that is a dot-separated path of keys' do
         before :context do
-          @string = "b.c"
+          @string = 'b.c'
           @keys = @string.split('.').map(&:to_sym)
         end
 

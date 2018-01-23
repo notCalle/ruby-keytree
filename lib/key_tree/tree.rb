@@ -11,12 +11,7 @@ module KeyTree
     def self.[](hash = {})
       keytree = Tree.new
       hash.each do |key, value|
-        keytree[Path[key]] = case value
-                                 when Hash
-                                   Tree[value]
-                                 else
-                                   value
-                                 end
+        keytree[Path[key]] = tree_or_leaf(value)
       end
       keytree
     end
@@ -35,20 +30,27 @@ module KeyTree
       super(keys.map { |key_or_path| Path[key_or_path] })
     end
 
-    def []=(key_or_path, value)
+    def []=(key_or_path, new_value)
       path = Path[key_or_path]
 
-      each_key do |key|
-        if path.prefix?(key) or key.prefix?(path)
-          delete(key)
-        end
-      end
+      each_key { |key| delete(key) if path.prefix?(key) || key.prefix?(path) }
 
-      case value
+      case new_value
       when KeyTree
-        each_value { |suffix, value| super(path + suffix, value) }
+        new_value.each { |suffix, value| super(path + suffix, value) }
       else
-        super(path, value)
+        super(path, new_value)
+      end
+    end
+
+    private
+
+    def tree_or_leaf(value)
+      case value
+      when Hash
+        Tree[value]
+      else
+        value
       end
     end
   end

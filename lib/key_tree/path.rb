@@ -57,7 +57,7 @@ module KeyTree
     end
 
     def +(other)
-      self.dup << other
+      dup << other
     end
 
     # drop(+prefix+)
