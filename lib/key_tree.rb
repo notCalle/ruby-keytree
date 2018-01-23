@@ -1,5 +1,5 @@
 require 'key_tree/version'
-require 'key_tree/path'
+require 'key_tree/tree'
 
 # Manage a tree of keys
 #
