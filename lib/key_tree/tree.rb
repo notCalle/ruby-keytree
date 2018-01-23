@@ -43,9 +43,9 @@ module KeyTree
       end
     end
 
-    private
+    private_class_method
 
-    def tree_or_leaf(value)
+    def self.tree_or_leaf(value)
       case value
       when Hash
         Tree[value]
