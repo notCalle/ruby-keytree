@@ -33,11 +33,7 @@ module KeyTree
     def []=(key_or_path, value)
       path = Path[key_or_path]
 
-      each_key do |key|
-        if path.prefix?(key) or key.prefix?(path)
-          delete(key)
-        end
-      end
+      each_key { |key| delete(key) if path.prefix?(key) || key.prefix?(path) }
 
       case value
       when KeyTree
