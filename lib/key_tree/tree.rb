@@ -30,16 +30,16 @@ module KeyTree
       super(keys.map { |key_or_path| Path[key_or_path] })
     end
 
-    def []=(key_or_path, value)
+    def []=(key_or_path, new_value)
       path = Path[key_or_path]
 
       each_key { |key| delete(key) if path.prefix?(key) || key.prefix?(path) }
 
-      case value
+      case new_value
       when KeyTree
-        each_value { |suffix, value| super(path + suffix, value) }
+        new_value.each { |suffix, value| super(path + suffix, value) }
       else
-        super(path, value)
+        super(path, new_value)
       end
     end
 
