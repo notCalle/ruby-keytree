@@ -36,16 +36,16 @@ module KeyTree
       each_key { |key| delete(key) if path.prefix?(key) || key.prefix?(path) }
 
       case new_value
-      when KeyTree
+      when Tree
         new_value.each { |suffix, value| super(path + suffix, value) }
       else
         super(path, new_value)
       end
     end
 
-    private
+    private_class_method
 
-    def tree_or_leaf(value)
+    def self.tree_or_leaf(value)
       case value
       when Hash
         Tree[value]
