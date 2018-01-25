@@ -4,6 +4,16 @@ RSpec.describe KeyTree::Path do
   end
 
   context 'when initialized' do
+    context 'with nothing' do
+      it 'does not raise an error' do
+        expect { KeyTree::Path[] }.not_to raise_error
+      end
+
+      it 'is empty' do
+        expect(KeyTree::Path[]).to be_empty
+      end
+    end
+
     context 'with a symbol' do
       before :context do
         @symbol = :a
