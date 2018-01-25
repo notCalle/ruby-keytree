@@ -3,6 +3,20 @@ require 'key_tree/tree'
 
 # Manage a tree of keys
 #
+# Example:
+#   kt=KeyTree[a: 1, b: { c: 2 }]
+#   kt["a"]
+#   -> 1
+#   kt["b.c"]
+#   -> 2
+#
 module KeyTree
-  # Your code goes here...
+  def self.[](contents = {})
+    case contents
+    when Hash
+      KeyTree::Tree[contents]
+    else
+      raise ArgumentError, "can't load #{contents.class} into a KeyTree"
+    end
+  end
 end
