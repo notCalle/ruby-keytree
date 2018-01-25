@@ -85,5 +85,11 @@ module KeyTree
       key_enum = each
       other.all? { |other_key| key_enum.next == other_key }
     end
+
+    # Would +other+ conflict?
+    #
+    def conflict?(other)
+      prefix?(other) || other.prefix?(self) if self != other
+    end
   end
 end
