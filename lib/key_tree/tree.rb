@@ -17,9 +17,7 @@ module KeyTree
     end
 
     def [](key_or_path)
-      fetch(key_or_path)
-    rescue KeyError
-      nil
+      super(Path[key_or_path])
     end
 
     def fetch(key_or_path, *args, **kvargs, &proc)
