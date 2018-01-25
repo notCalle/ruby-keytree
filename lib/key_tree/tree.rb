@@ -11,7 +11,7 @@ module KeyTree
     def self.[](hash = {})
       keytree = Tree.new
       hash.each do |key, value|
-        keytree[Path[key]] = tree_or_leaf(value)
+        keytree[key] = value
       end
       keytree
     end
@@ -36,21 +36,10 @@ module KeyTree
       each_key { |key| delete(key) if path.conflict?(key) }
 
       case new_value
-      when Tree
+      when Hash
         new_value.each { |suffix, value| super(path + suffix, value) }
       else
         super(path, new_value)
-      end
-    end
-
-    private_class_method
-
-    def self.tree_or_leaf(value)
-      case value
-      when Hash
-        Tree[value]
-      else
-        value
       end
     end
   end
