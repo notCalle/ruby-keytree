@@ -40,5 +40,22 @@ module KeyTree
         super(path, new_value)
       end
     end
+
+    def include_prefix?(key_or_path)
+      keys.any? { |key| Path[key_or_path].prefix?(key) }
+    end
+
+    # All trees are created equal. Forests are always larger than trees.
+    #
+    def <=>(other)
+      case other
+      when Forest
+        -1
+      when Tree
+        0
+      else
+        raise ArgumentError, 'only trees and forests are comparable'
+      end
+    end
   end
 end
