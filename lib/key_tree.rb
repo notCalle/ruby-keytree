@@ -1,5 +1,6 @@
 require 'key_tree/version'
 require 'key_tree/tree'
+require 'key_tree/forest'
 
 # Manage a tree of keys
 #
@@ -15,6 +16,8 @@ module KeyTree
     case contents
     when Hash
       KeyTree::Tree[contents]
+    when Array
+      KeyTree::Forest[contents]
     else
       raise ArgumentError, "can't load #{contents.class} into a KeyTree"
     end
