@@ -31,7 +31,7 @@ module KeyTree
     def []=(key_or_path, new_value)
       path = Path[key_or_path]
 
-      each_key { |key| delete(key) if path.conflict?(key) }
+      delete_if { |key, _| path.conflict?(key) }
 
       case new_value
       when Hash
