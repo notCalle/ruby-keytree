@@ -62,9 +62,16 @@ module KeyTree
       any? { |tree_or_forest| tree_or_forest.include_prefix?(key) }
     end
 
+    # Flattening a forest produces a tree with the equivalent view of key paths
+    #
     def flatten
-      reduce do |result, tree_or_forest|
-        tree_or_forest.merge(result)
+      reduce(Tree[]) do |result, tree_or_forest|
+        case tree_or_forest
+        when Forest
+          tree_or_forest.flatten.merge(result)
+        else
+          tree_or_forest.merge(result)
+        end
       end
     end
 
