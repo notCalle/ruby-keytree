@@ -61,5 +61,13 @@ module KeyTree
         raise ArgumentError, 'only trees and forests are comparable'
       end
     end
+
+    # The merging of trees needs some extra consideration; due to the
+    # nature of key paths, prefix conflicts must be deleted
+    #
+    def merge(other)
+      delete_if { |key, _| other.include_conflict?(key) }
+      super
+    end
   end
 end
