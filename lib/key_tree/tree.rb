@@ -20,8 +20,8 @@ module KeyTree
       super(Path[key_or_path])
     end
 
-    def fetch(key_or_path, *args, **kvargs, &proc)
-      super(Path[key_or_path], *args, **kvargs, &proc)
+    def fetch(key_or_path, *args, &proc)
+      super(Path[key_or_path], *args, &proc)
     end
 
     def values_at(*keys)
