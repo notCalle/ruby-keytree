@@ -41,12 +41,16 @@ module KeyTree
       end
     end
 
-    def include_prefix?(key_or_path)
-      keys.any? { |key| Path[key_or_path].prefix?(key) }
+    def key?(key_or_path)
+      super(Path[key_or_path])
     end
 
-    def include_conflict?(key_or_path)
-      keys.any? { |key| Path[key_or_path].conflict?(key) }
+    def prefix?(key_or_path)
+      keys.any? { |key| key.prefix?(Path[key_or_path]) }
+    end
+
+    def conflict?(key_or_path)
+      keys.any? { |key| key.conflict?(Path[key_or_path]) }
     end
 
     # All trees are created equal. Forests are always larger than trees.
@@ -66,7 +70,7 @@ module KeyTree
     # nature of key paths, prefix conflicts must be deleted
     #
     def merge(other)
-      delete_if { |key, _| other.include_conflict?(key) }
+      delete_if { |key, _| other.conflict?(key) }
       super
     end
   end

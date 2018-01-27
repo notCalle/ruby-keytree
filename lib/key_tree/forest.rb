@@ -25,8 +25,8 @@ module KeyTree
         super(key)
       else
         each do |tree_or_forest|
-          return tree_or_forest[key] if tree_or_forest.include?(key)
-          return nil if tree_or_forest.include_prefix?(key)
+          return tree_or_forest[key] if tree_or_forest.key?(key)
+          return nil if tree_or_forest.prefix?(key)
         end
       end
     end
@@ -54,12 +54,12 @@ module KeyTree
       end
     end
 
-    def include?(key)
-      any? { |tree_or_forest| tree_or_forest.include?(key) }
+    def key?(key)
+      any? { |tree_or_forest| tree_or_forest.key?(key) }
     end
 
-    def include_prefix?(key)
-      any? { |tree_or_forest| tree_or_forest.include_prefix?(key) }
+    def prefix?(key)
+      any? { |tree_or_forest| tree_or_forest.prefix?(key) }
     end
 
     # Flattening a forest produces a tree with the equivalent view of key paths
