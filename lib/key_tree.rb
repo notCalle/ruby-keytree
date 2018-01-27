@@ -17,7 +17,7 @@ module KeyTree
     when Hash
       KeyTree::Tree[contents]
     when Array
-      KeyTree::Forest[contents]
+      KeyTree::Forest[*contents]
     else
       raise ArgumentError, "can't load #{contents.class} into a KeyTree"
     end

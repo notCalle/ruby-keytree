@@ -5,7 +5,7 @@ module KeyTree
   # A forest is a (possibly nested) collection of trees
   #
   class Forest < Array
-    def self.[](contents = [])
+    def self.[](*contents)
       contents.reduce(Forest.new) do |result, content|
         result << KeyTree[content]
       end.sort!
