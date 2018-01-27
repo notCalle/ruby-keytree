@@ -20,8 +20,8 @@ module KeyTree
       super(Path[key_or_path])
     end
 
-    def fetch(key_or_path, *args, **kvargs, &proc)
-      super(Path[key_or_path], *args, **kvargs, &proc)
+    def fetch(key_or_path, *args, &proc)
+      super(Path[key_or_path], *args, &proc)
     end
 
     def values_at(*keys)
@@ -31,7 +31,7 @@ module KeyTree
     def []=(key_or_path, new_value)
       path = Path[key_or_path]
 
-      each_key { |key| delete(key) if path.conflict?(key) }
+      delete_if { |key, _| path.conflict?(key) }
 
       case new_value
       when Hash
@@ -39,6 +39,39 @@ module KeyTree
       else
         super(path, new_value)
       end
+    end
+
+    def key?(key_or_path)
+      super(Path[key_or_path])
+    end
+
+    def prefix?(key_or_path)
+      keys.any? { |key| key.prefix?(Path[key_or_path]) }
+    end
+
+    def conflict?(key_or_path)
+      keys.any? { |key| key.conflict?(Path[key_or_path]) }
+    end
+
+    # All trees are created equal. Forests are always larger than trees.
+    #
+    def <=>(other)
+      case other
+      when Forest
+        -1
+      when Tree
+        0
+      else
+        raise ArgumentError, 'only trees and forests are comparable'
+      end
+    end
+
+    # The merging of trees needs some extra consideration; due to the
+    # nature of key paths, prefix conflicts must be deleted
+    #
+    def merge(other)
+      delete_if { |key, _| other.conflict?(key) }
+      super
     end
   end
 end
