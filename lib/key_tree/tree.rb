@@ -45,6 +45,10 @@ module KeyTree
       keys.any? { |key| Path[key_or_path].prefix?(key) }
     end
 
+    def include_conflict?(key_or_path)
+      keys.any? { |key| Path[key_or_path].conflict?(key) }
+    end
+
     # All trees are created equal. Forests are always larger than trees.
     #
     def <=>(other)
