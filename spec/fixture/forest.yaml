@@ -1,0 +1,6 @@
+---
+- a: 1
+- b:
+    c: 2
+...
+This should produce a forest containing two trees, {"a" => 1} and {"b.c" => 2}

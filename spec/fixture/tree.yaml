@@ -1,0 +1,4 @@
+---
+  a: 1
+...
+This should produce a KeyTree containing the key "a" and value 1.
