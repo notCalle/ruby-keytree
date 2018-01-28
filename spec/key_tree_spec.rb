@@ -44,6 +44,29 @@ RSpec.describe KeyTree do
         end
       end
     end
+
+    context 'from a file' do
+      %w[yaml].each do |file_type|
+        context "of type #{file_type}" do
+          before :context do
+            @tree_fixture = fixture("tree.#{file_type}")
+            @forest_fixture = fixture("forest.#{file_type}")
+          end
+
+          it 'creates trees from maps' do
+            expect(KeyTree.open(@tree_fixture)).to be_a KeyTree::Tree
+          end
+
+          it 'creates forests from lists' do
+            expect(KeyTree.open(@forest_fixture)).to be_a KeyTree::Forest
+          end
+
+          it 'remembers the path of loaded file' do
+            expect(
+              KeyTree.open(@tree_fixture).meta_data['file.path']
+            ).to eq @tree_fixture
+          end
+        end
       end
     end
   end
