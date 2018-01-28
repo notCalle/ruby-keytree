@@ -42,7 +42,11 @@ module KeyTree
     type, serialization = typed_serialization.flatten
 
     loader = get_loader(type)
-    self[loader.load(serialization)]
+    self[loader.load(serialization)].with_meta_data do |meta_data|
+      meta_data << { load: { type: type,
+                             loader: loader } }
+    end
+  end
   end
 
   private_class_method
