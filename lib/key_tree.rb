@@ -43,7 +43,7 @@ module KeyTree
 
     loader = get_loader(type)
     self[loader.load(serialization)].with_meta_data do |meta_data|
-      meta_data << { load: { type: type,
+      meta_data << { load: { type: type.to_sym,
                              loader: loader } }
     end
   end
