@@ -47,6 +47,17 @@ module KeyTree
                              loader: loader } }
     end
   end
+
+  # Open an external file and load contents into a KeyTree
+  #
+  def self.open(file_name)
+    type = File.extname(file_name)[/[^.]+/]
+    keytree = File.open(file_name, mode: 'rb:utf-8') do |file|
+      load_from_file(file, type)
+    end
+
+    return keytree unless block_given?
+    yield(keytree)
   end
 
   private_class_method
@@ -59,5 +70,13 @@ module KeyTree
   rescue NameError
     require type.to_s
     retry
+  end
+
+  def self.load_from_file(file, type)
+    load(type => file.read).with_meta_data do |meta_data|
+      meta_data << { file: { path: file.path,
+                             name: file.basename,
+                             dir: file.dirname } }
+    end
   end
 end
