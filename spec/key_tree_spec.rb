@@ -22,13 +22,12 @@ RSpec.describe KeyTree do
       expect { KeyTree.load(a: '', b: '') }.to raise_error ArgumentError
     end
 
-    @tested_loaders = %i[yaml json]
     before :context do
       @t = { yaml: "---\na: 1\n",   json: '{"a": 1}'   }
       @f = { yaml: "---\n- a: 1\n", json: '[{"a": 1}]' }
     end
 
-    @tested_loaders.each do |loader|
+    %i[yaml json].each do |loader|
       context "from #{loader}" do
         it 'creates trees from maps' do
           expect(KeyTree.load(loader => @t[loader])).to be_a KeyTree::Tree
