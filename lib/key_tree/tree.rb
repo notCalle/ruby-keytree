@@ -1,8 +1,9 @@
 require 'key_tree/path'
-
+require 'key_tree/meta_data'
 module KeyTree
   # A tree of key-value lookup tables (hashes)
   class Tree < Hash
+    include MetaData
     #
     # KeyTree::Tree.new(+hash+)
     #
