@@ -71,8 +71,10 @@ module KeyTree
     # nature of key paths, prefix conflicts must be deleted
     #
     def merge(other)
+      other = KeyTree[other] unless other.is_a? KeyTree
       delete_if { |key, _| other.conflict?(key) }
       super
     end
+    alias << merge
   end
 end
