@@ -74,9 +74,10 @@ module KeyTree
 
   def self.load_from_file(file, type)
     load(type => file.read).with_meta_data do |meta_data|
-      meta_data << { file: { path: file.path,
-                             name: file.basename,
-                             dir: file.dirname } }
+      file_path = file.path
+      meta_data << { file: { path: file_path,
+                             name: File.basename(file_path),
+                             dir: File.dirname(file_path) } }
     end
   end
 end
