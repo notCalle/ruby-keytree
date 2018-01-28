@@ -1,10 +1,13 @@
 require 'key_tree/tree'
+require 'key_tree/meta_data'
 
 module KeyTree
   #
   # A forest is a (possibly nested) collection of trees
   #
   class Forest < Array
+    include MetaData
+
     def self.[](*contents)
       contents.reduce(Forest.new) do |result, content|
         result << KeyTree[content]
