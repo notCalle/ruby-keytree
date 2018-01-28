@@ -36,6 +36,14 @@ RSpec.describe KeyTree do
         it 'creates forests from lists' do
           expect(KeyTree.load(loader => @f[loader])).to be_a KeyTree::Forest
         end
+
+        it 'remembers the type of loaded data' do
+          expect(
+            KeyTree.load(loader => @t[loader]).meta_data['load.type']
+          ).to eq loader
+        end
+      end
+    end
       end
     end
   end
