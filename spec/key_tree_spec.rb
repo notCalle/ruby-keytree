@@ -15,4 +15,29 @@ RSpec.describe KeyTree do
       end
     end
   end
+
+  context 'when loading' do
+    it 'requires exactly one typed serialization' do
+      expect { KeyTree.load }.to raise_error ArgumentError
+      expect { KeyTree.load(a: '', b: '') }.to raise_error ArgumentError
+    end
+
+    @tested_loaders = %i[yaml json]
+    before :context do
+      @t = { yaml: "---\na: 1\n",   json: '{"a": 1}'   }
+      @f = { yaml: "---\n- a: 1\n", json: '[{"a": 1}]' }
+    end
+
+    @tested_loaders.each do |loader|
+      context "from #{loader}" do
+        it 'creates trees from maps' do
+          expect(KeyTree.load(loader => @t[loader])).to be_a KeyTree::Tree
+        end
+
+        it 'creates forests from lists' do
+          expect(KeyTree.load(loader => @f[loader])).to be_a KeyTree::Forest
+        end
+      end
+    end
+  end
 end
