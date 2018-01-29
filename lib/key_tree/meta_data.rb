@@ -1,3 +1,5 @@
+require 'key_tree/tree'
+
 module KeyTree
   #
   # Mixin for adding a meta_data key tree
