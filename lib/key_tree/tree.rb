@@ -1,8 +1,9 @@
 require 'key_tree/path'
-
+require 'key_tree/meta_data'
 module KeyTree
   # A tree of key-value lookup tables (hashes)
   class Tree < Hash
+    include MetaData
     #
     # KeyTree::Tree.new(+hash+)
     #
@@ -69,9 +70,16 @@ module KeyTree
     # The merging of trees needs some extra consideration; due to the
     # nature of key paths, prefix conflicts must be deleted
     #
-    def merge(other)
+    def merge!(other)
+      other = Tree[other] unless other.is_a?(Tree)
       delete_if { |key, _| other.conflict?(key) }
       super
     end
+    alias << merge!
+
+    def merge(other)
+      dup.merge!(other)
+    end
+    alias + merge
   end
 end
