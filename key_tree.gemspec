@@ -6,6 +6,7 @@ require 'key_tree/version'
 Gem::Specification.new do |spec|
   spec.name          = 'key_tree'
   spec.version       = KeyTree::VERSION
+  spec.date          = KeyTree::DATE
   spec.authors       = ['Calle Englund']
   spec.email         = ['calle@discord.bofh.se']
 
@@ -20,6 +21,8 @@ Gem::Specification.new do |spec|
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
+
+  spec.add_dependency 'git-version-bump', '~> 0.15'
 
   spec.add_development_dependency 'bundler', '~> 1.16'
   spec.add_development_dependency 'rake', '~> 10.0'
