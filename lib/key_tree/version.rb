@@ -1,3 +1,6 @@
+require 'git-version-bump'
+
 module KeyTree
-  VERSION = '0.3.0'.freeze
+  VERSION = GVB.version.freeze
+  DATE = GVB.date.freeze
 end
