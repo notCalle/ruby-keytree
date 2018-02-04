@@ -1,6 +1,5 @@
 require 'bundler/setup'
 require 'bundler/gem_tasks'
-require 'git-version-bump/rake-tasks'
 
 desc 'Run RuboCop'
 require 'rubocop/rake_task'
