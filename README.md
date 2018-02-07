@@ -1,4 +1,4 @@
-[![Gem Version](https://badge.fury.io/rb/key_tree.svg)](https://badge.fury.io/rb/key_tree)
+[![Gem Version](https://badge.fury.io/rb/key_tree.svg)](https://badge.fury.io/rb/key_tree) [![Maintainability](https://api.codeclimate.com/v1/badges/ac48756e80007e0cd6f9/maintainability)](https://codeclimate.com/github/notCalle/ruby-keytree/maintainability)
 
 # KeyTree
 
