@@ -69,5 +69,43 @@ RSpec.describe KeyTree do
         end
       end
     end
+
+    context 'from a directory, non-recursively' do
+      before :context do
+        @forest = KeyTree.open_all(fixture('forest'))
+      end
+
+      it 'creates a forest' do
+        expect(@forest).to be_a KeyTree::Forest
+      end
+
+      it 'has expected keys' do
+        expect(@forest['b']).to eq 2
+      end
+
+      it 'does not have unexpected keys' do
+        expect(@forest['a']).to be_nil
+        expect(@forest['c']).to be_nil
+      end
+    end
+
+    context 'from a directory, recursively' do
+      before :context do
+        @forest = KeyTree.open_all(fixture('forest'), recurse: true)
+      end
+
+      it 'creates a forest' do
+        expect(@forest).to be_a KeyTree::Forest
+      end
+
+      it 'has expected keys' do
+        expect(@forest['b']).to eq 2
+        expect(@forest['c']).to eq 3
+      end
+
+      it 'does not have unexpected keys' do
+        expect(@forest['a']).to be_nil
+      end
+    end
   end
 end
