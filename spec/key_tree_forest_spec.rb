@@ -27,6 +27,14 @@ RSpec.describe KeyTree::Forest do
         expect(KeyTree::Forest[@tree]).to include(@tree)
       end
 
+      it 'can get the expected values for keys' do
+        expect(KeyTree::Forest[@tree]['a']).to eq 1
+      end
+
+      it 'returns nil for undefined keys' do
+        expect(KeyTree::Forest[@tree]['b']).to be_nil
+      end
+
       it 'can be flattened into a tree' do
         expect(KeyTree::Forest[@tree].flatten).to be_a KeyTree::Tree
       end
@@ -71,6 +79,14 @@ RSpec.describe KeyTree::Forest do
 
       it 'contains the nested forest' do
         expect(@forest).to include(@forest1)
+      end
+
+      it 'can get the expected values for keys' do
+        expect(KeyTree::Forest[@tree]['a']).to eq 1
+      end
+
+      it 'returns nil for undefined keys' do
+        expect(KeyTree::Forest[@tree]['b']).to be_nil
       end
 
       it 'is sorted by incrementing nesting depth' do
