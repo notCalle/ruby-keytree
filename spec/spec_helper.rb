@@ -1,5 +1,7 @@
 require 'bundler/setup'
 require 'key_tree'
+require 'json'
+require 'yaml'
 
 Dir[File.dirname(__FILE__) + '/helpers/*.rb'].each { |helper| load helper }
 
