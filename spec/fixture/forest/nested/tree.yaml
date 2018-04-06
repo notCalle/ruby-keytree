@@ -1,0 +1,4 @@
+---
+  c: 3
+...
+This should produce a KeyTree containing the key "c" and value 3.
