@@ -60,6 +60,21 @@ module KeyTree
     yield(keytree)
   end
 
+  # Open all files in a directory and load their contents into
+  # a Forest of Trees, optionally following symlinks, and recursing.
+  def self.open_all(dir_name, follow_links: false, recurse: false)
+    Dir.children(dir_name).reduce(KeyTree::Forest.new) do |result, file|
+      path = File.join(dir_name, file)
+      next result if File.symlink?(path) && !follow_links
+      stat = File.stat(path)
+      # rubocop:disable Security/Open
+      next result << open(path) if stat.file?
+      # rubocop:enable Security/Open
+      next result unless recurse && stat.directory?
+      result << open_all(path, follow_links: follow_links, recurse: true)
+    end
+  end
+
   private_class_method
 
   # Get a class for loading external serialization for +type+
