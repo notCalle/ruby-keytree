@@ -1,6 +1,7 @@
 require 'key_tree/version'
 require 'key_tree/tree'
 require 'key_tree/forest'
+require 'key_tree/loader'
 
 # Manage a tree of keys
 #
@@ -40,10 +41,9 @@ module KeyTree
     end
 
     type, serialization = typed_serialization.flatten
-
-    loader = get_loader(type)
+    loader = Loader[type]
     self[loader.load(serialization)].with_meta_data do |meta_data|
-      meta_data << { load: { type: type.to_sym,
+      meta_data << { load: { type: type,
                              loader: loader } }
     end
   end
@@ -52,6 +52,8 @@ module KeyTree
   #
   def self.open(file_name)
     type = File.extname(file_name)[/[^.]+/]
+    type = type.to_sym unless type.nil?
+
     keytree = File.open(file_name, mode: 'rb:utf-8') do |file|
       load_from_file(file, type)
     end
@@ -76,16 +78,6 @@ module KeyTree
   end
 
   private_class_method
-
-  # Get a class for loading external serialization for +type+
-  # +require+s the class provider if necessary.
-  #
-  def self.get_loader(type)
-    Class.const_get(type.upcase)
-  rescue NameError
-    require type.to_s
-    retry
-  end
 
   def self.load_from_file(file, type)
     load(type => file.read).with_meta_data do |meta_data|
