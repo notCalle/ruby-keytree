@@ -36,7 +36,7 @@ module KeyTree
 
       case new_value
       when Hash
-        new_value.each { |suffix, value| super(path + suffix, value) }
+        new_value.each { |suffix, value| self[path + suffix] = value }
       else
         super(path, new_value)
       end

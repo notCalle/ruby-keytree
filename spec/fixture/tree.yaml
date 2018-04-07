@@ -1,4 +1,8 @@
 ---
   a: 1
+  b:
+    c:
+      d: 4
 ...
-This should produce a KeyTree containing the key "a" and value 1.
+This should produce a KeyTree containing the key "a" with value 1, and
+the key "b.c.d" with value 4.
