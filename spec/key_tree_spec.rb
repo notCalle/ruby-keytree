@@ -50,11 +50,19 @@ RSpec.describe KeyTree do
         context "of type #{file_type}" do
           before :context do
             @tree_fixture = fixture("tree.#{file_type}")
+            @tree_expected = { 'a' => 1, 'b.c.d' => 4 }
             @forest_fixture = fixture("forest.#{file_type}")
           end
 
           it 'creates trees from maps' do
             expect(KeyTree.open(@tree_fixture)).to be_a KeyTree::Tree
+          end
+
+          it 'contains the expected key/values' do
+            tree = KeyTree.open(@tree_fixture)
+            @tree_expected.each do |key, value|
+              expect(tree[key]).to eq value
+            end
           end
 
           it 'creates forests from lists' do
