@@ -39,11 +39,11 @@ module KeyTree
     end
 
     def key?(key)
-      any? { |tree_or_forest| tree_or_forest.key?(key) }
+      trees.any? { |tree| tree.key?(key) }
     end
 
     def prefix?(key)
-      any? { |tree_or_forest| tree_or_forest.prefix?(key) }
+      trees.any? { |tree_or_forest| tree_or_forest.prefix?(key) }
     end
 
     # Flattening a forest produces a tree with the equivalent view of key paths
