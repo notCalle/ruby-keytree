@@ -45,13 +45,7 @@ module KeyTree
     # Flattening a forest produces a tree with the equivalent view of key paths
     #
     def flatten
-      reduce(Tree[]) do |result, tree_or_forest|
-        case tree_or_forest
-        when Forest
-          tree_or_forest.flatten.merge(result)
-        else
-          tree_or_forest.merge(result)
-      end
+      trees.reverse_each.reduce(Tree[], :merge!)
     end
 
     # Return a breadth-first Enumerator for all the trees in the forest,
