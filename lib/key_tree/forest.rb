@@ -11,7 +11,7 @@ module KeyTree
     def self.[](*contents)
       contents.reduce(Forest.new) do |result, content|
         result << KeyTree[content]
-      end.sort!
+      end
     end
 
     # For a numeric key, return the n:th tree in the forest
@@ -34,29 +34,6 @@ module KeyTree
       end
     end
 
-    # Trees are always smaller than forrests.
-    # Forests are compared by nesting depth, not number of trees.
-    #
-    def <=>(other)
-      return 0 if self == other
-
-      case other
-      when Forest
-        depth <=> other.depth
-      when Tree
-        1
-      else
-        raise ArgumentError, 'only forests and trees are comparable'
-      end
-    end
-
-    # The nesting depth of a forest
-    def depth
-      reduce(1) do |result, tree_or_forest|
-        [result, content_depth(tree_or_forest) + 1].max
-      end
-    end
-
     def key?(key)
       any? { |tree_or_forest| tree_or_forest.key?(key) }
     end
@@ -75,17 +52,6 @@ module KeyTree
         else
           tree_or_forest.merge(result)
         end
-      end
-    end
-
-    private
-
-    def content_depth(content)
-      case content
-      when Forest
-        content.depth
-      else
-        0
       end
     end
   end
