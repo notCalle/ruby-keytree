@@ -27,9 +27,9 @@ module KeyTree
       when Numeric
         super(key)
       else
-        detect do |tree_or_forest|
-          return tree_or_forest[key] if tree_or_forest.key?(key)
-          return nil if tree_or_forest.prefix?(key)
+        trees.detect do |tree|
+          return tree[key] if tree.key?(key)
+          return nil if tree.prefix?(key)
         end
       end
     end
