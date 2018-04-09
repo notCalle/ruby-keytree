@@ -23,15 +23,19 @@ module KeyTree
     # the constraints that only leaves may contain a value.
     #
     def [](key)
-      case key
-      when Numeric
-        super(key)
-      else
-        trees.detect do |tree|
-          return tree[key] if tree.key?(key)
-          return nil if tree.prefix?(key)
-        end
-      end
+      return super(key) if key.is_a?(Numeric)
+      fetch(key)
+    rescue KeyError
+      nil
+    end
+
+    def fetch(key)
+      tree_with_key(key).fetch(key)
+    end
+
+    def tree_with_key(key)
+      result = trees.detect { |tree| tree.prefix?(key) }
+      result || raise(KeyError, "key not found: #{key}")
     end
 
     def key?(key)
