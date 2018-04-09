@@ -51,6 +51,17 @@ module KeyTree
           tree_or_forest.flatten.merge(result)
         else
           tree_or_forest.merge(result)
+      end
+    end
+
+    # Return a breadth-first Enumerator for all the trees in the forest,
+    # and any nested forests
+    def trees
+      Enumerator.new do |yielder|
+        remaining = [self]
+        remaining.each do |woods|
+          next yielder << woods if woods.is_a?(Tree)
+          woods.each { |wood| remaining << wood }
         end
       end
     end
