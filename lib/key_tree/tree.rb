@@ -54,19 +54,6 @@ module KeyTree
       keys.any? { |key| key.conflict?(Path[key_or_path]) }
     end
 
-    # All trees are created equal. Forests are always larger than trees.
-    #
-    def <=>(other)
-      case other
-      when Forest
-        -1
-      when Tree
-        0
-      else
-        raise ArgumentError, 'only trees and forests are comparable'
-      end
-    end
-
     # The merging of trees needs some extra consideration; due to the
     # nature of key paths, prefix conflicts must be deleted
     #

@@ -11,7 +11,7 @@ module KeyTree
     def self.[](*contents)
       contents.reduce(Forest.new) do |result, content|
         result << KeyTree[content]
-      end.sort!
+      end
     end
 
     # For a numeric key, return the n:th tree in the forest
@@ -23,69 +23,44 @@ module KeyTree
     # the constraints that only leaves may contain a value.
     #
     def [](key)
-      case key
-      when Numeric
-        super(key)
-      else
-        detect do |tree_or_forest|
-          return tree_or_forest[key] if tree_or_forest.key?(key)
-          return nil if tree_or_forest.prefix?(key)
-        end
-      end
+      return super(key) if key.is_a?(Numeric)
+      fetch(key)
+    rescue KeyError
+      nil
     end
 
-    # Trees are always smaller than forrests.
-    # Forests are compared by nesting depth, not number of trees.
-    #
-    def <=>(other)
-      return 0 if self == other
-
-      case other
-      when Forest
-        depth <=> other.depth
-      when Tree
-        1
-      else
-        raise ArgumentError, 'only forests and trees are comparable'
-      end
+    def fetch(key)
+      tree_with_key(key).fetch(key)
     end
 
-    # The nesting depth of a forest
-    def depth
-      reduce(1) do |result, tree_or_forest|
-        [result, content_depth(tree_or_forest) + 1].max
-      end
+    def tree_with_key(key)
+      result = trees.detect { |tree| tree.prefix?(key) }
+      result || raise(KeyError, "key not found: #{key}")
     end
 
     def key?(key)
-      any? { |tree_or_forest| tree_or_forest.key?(key) }
+      trees.any? { |tree| tree.key?(key) }
     end
 
     def prefix?(key)
-      any? { |tree_or_forest| tree_or_forest.prefix?(key) }
+      trees.any? { |tree_or_forest| tree_or_forest.prefix?(key) }
     end
 
     # Flattening a forest produces a tree with the equivalent view of key paths
     #
     def flatten
-      reduce(Tree[]) do |result, tree_or_forest|
-        case tree_or_forest
-        when Forest
-          tree_or_forest.flatten.merge(result)
-        else
-          tree_or_forest.merge(result)
-        end
-      end
+      trees.reverse_each.reduce(Tree[], :merge!)
     end
 
-    private
-
-    def content_depth(content)
-      case content
-      when Forest
-        content.depth
-      else
-        0
+    # Return a breadth-first Enumerator for all the trees in the forest,
+    # and any nested forests
+    def trees
+      Enumerator.new do |yielder|
+        remaining = [self]
+        remaining.each do |woods|
+          next yielder << woods if woods.is_a?(Tree)
+          woods.each { |wood| remaining << wood }
+        end
       end
     end
   end
