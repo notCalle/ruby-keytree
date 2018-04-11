@@ -115,5 +115,23 @@ RSpec.describe KeyTree do
         expect(@forest['a']).to be_nil
       end
     end
+
+    context 'from a directory with unloadable files' do
+      it 'raises a NoMethodError' do
+        expect {
+          KeyTree.open_all(fixture('danger-forest'))
+        }.to raise_error NoMethodError
+      end
+
+      context 'with a fallback loader' do
+        it 'does not raise an error' do
+          expect {
+            KeyTree::Loader.fallback(KeyTree::Loader::Nil)
+            KeyTree.open_all(fixture('danger-forest'))
+            KeyTree::Loader.fallback(nil)
+          }.not_to raise_error
+        end
+      end
+    end
   end
 end
