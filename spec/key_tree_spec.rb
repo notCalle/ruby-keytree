@@ -42,6 +42,15 @@ RSpec.describe KeyTree do
             KeyTree.load(loader => @t[loader]).meta_data['load.type']
           ).to eq loader
         end
+
+        it 'can prepend a key prefix to loaded data' do
+          expect(
+            KeyTree.load('pfx', loader => @t[loader])
+          ).to be_a KeyTree::Tree
+          expect(
+            KeyTree.load('pfx', loader => @f[loader])
+          ).to be_a KeyTree::Tree
+        end
       end
     end
 
@@ -74,6 +83,20 @@ RSpec.describe KeyTree do
               KeyTree.open(@tree_fixture).meta_data['file.path']
             ).to eq @tree_fixture
           end
+        end
+      end
+    end
+
+    context 'from a file, with key prefix@' do
+      before :context do
+        @fixture = fixture('a@prefix_tree.yaml')
+        @expected = { 'a.b' => 2 }
+      end
+
+      it 'contains the expected key/values' do
+        tree = KeyTree.open(@fixture)
+        @expected.each do |key, value|
+          expect(tree[key]).to eq value
         end
       end
     end
