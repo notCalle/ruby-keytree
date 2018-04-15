@@ -22,9 +22,9 @@ module KeyTree
     # key path matches in trees further away, returning nil. This preserves
     # the constraints that only leaves may contain a value.
     #
-    def [](key)
+    def [](key, &merger)
       return super(key) if key.is_a?(Numeric)
-      fetch(key)
+      fetch(key, &merger)
     rescue KeyError
       nil
     end
