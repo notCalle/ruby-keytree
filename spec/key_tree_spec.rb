@@ -17,11 +17,6 @@ RSpec.describe KeyTree do
   end
 
   context 'when loading' do
-    it 'requires exactly one typed serialization' do
-      expect { KeyTree.load }.to raise_error ArgumentError
-      expect { KeyTree.load(a: '', b: '') }.to raise_error ArgumentError
-    end
-
     before :context do
       @t = { yaml: "---\na: 1\n",   json: '{"a": 1}'   }
       @f = { yaml: "---\n- a: 1\n", json: '[{"a": 1}]' }
@@ -30,25 +25,25 @@ RSpec.describe KeyTree do
     %i[yaml json].each do |loader|
       context "from #{loader}" do
         it 'creates trees from maps' do
-          expect(KeyTree.load(loader => @t[loader])).to be_a KeyTree::Tree
+          expect(KeyTree.load(loader, @t[loader])).to be_a KeyTree::Tree
         end
 
         it 'creates forests from lists' do
-          expect(KeyTree.load(loader => @f[loader])).to be_a KeyTree::Forest
+          expect(KeyTree.load(loader, @f[loader])).to be_a KeyTree::Forest
         end
 
         it 'remembers the type of loaded data' do
           expect(
-            KeyTree.load(loader => @t[loader]).meta_data['load.type']
+            KeyTree.load(loader, @t[loader]).meta_data['load.type']
           ).to eq loader
         end
 
         it 'can prepend a key prefix to loaded data' do
           expect(
-            KeyTree.load('pfx', loader => @t[loader])
+            KeyTree.load(loader, @t[loader], prefix: 'pfx')
           ).to be_a KeyTree::Tree
           expect(
-            KeyTree.load('pfx', loader => @f[loader])
+            KeyTree.load(loader, @f[loader], prefix: 'pfx')
           ).to be_a KeyTree::Tree
         end
       end
