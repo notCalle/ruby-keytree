@@ -27,24 +27,31 @@ module KeyTree
   # Load a KeyTree from some external serialization
   #
   # load +type+: +serialization+
+  # load +key_prefix+, +type+: +serialization+
   #
   # +type+ is upcased to form a class name that should provide a
   # +.load+ class method (like YAML or JSON does).
   #
-  # Example:
+  # If a +key_prefix+ is given, it will be prepended to the loaded data.
+  #
+  # Examples:
   #   load(yaml: "---\na: 1\n")
   # => {"a" => 1}
   #
-  def self.load(typed_serialization = {})
-    unless typed_serialization.size == 1
-      raise ArgumentError, "pick one: #{typed_serialization.keys}"
-    end
+  #   load('a', yaml: "---\nb: 2\n")
+  # => {"a.b" => 2}
+  #
+  def self.load(prefix = nil, **kwargs)
+    raise ArgumentError, "pick one: #{kwargs.keys}" unless kwargs.size == 1
 
-    type, serialization = typed_serialization.flatten
+    type, serialization = kwargs.flatten
     loader = Loader[type]
-    self[loader.load(serialization)].with_meta_data do |meta_data|
-      meta_data << { load: { type: type,
-                             loader: loader } }
+    contents = loader.load(serialization)
+    contents = { prefix => contents } unless prefix.nil?
+
+    self[contents].with_meta_data do |meta_data|
+      meta_data << { load: { type: type, loader: loader } }
+      meta_data << { load: { prefix: prefix } } unless prefix.nil?
     end
   end
 
