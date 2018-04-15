@@ -30,7 +30,10 @@ module KeyTree
     end
 
     def fetch(key)
-      tree_with_key(key).fetch(key)
+      return tree_with_key(key).fetch(key) unless block_given?
+
+      values = trees_with_key(key).map { |tree| tree.fetch(key) }
+      values.reverse.reduce { |left, right| yield(key, left, right) }
     end
 
     def tree_with_key(key)
