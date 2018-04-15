@@ -57,15 +57,15 @@ module KeyTree
     # The merging of trees needs some extra consideration; due to the
     # nature of key paths, prefix conflicts must be deleted
     #
-    def merge!(other)
+    def merge!(other, &merger)
       other = Tree[other] unless other.is_a?(Tree)
       delete_if { |key, _| other.conflict?(key) }
       super
     end
     alias << merge!
 
-    def merge(other)
-      dup.merge!(other)
+    def merge(other, &merger)
+      dup.merge!(other, &merger)
     end
     alias + merge
   end
