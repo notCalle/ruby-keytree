@@ -87,6 +87,20 @@ RSpec.describe KeyTree do
       end
     end
 
+    context 'from a file, with key prefix@' do
+      before :context do
+        @fixture = fixture('a@prefix_tree.yaml')
+        @expected = { 'a.b' => 2 }
+      end
+
+      it 'contains the expected key/values' do
+        tree = KeyTree.open(@fixture)
+        @expected.each do |key, value|
+          expect(tree[key]).to eq value
+        end
+      end
+    end
+
     context 'from a directory, non-recursively' do
       before :context do
         @forest = KeyTree.open_all(fixture('forest'))
