@@ -38,6 +38,12 @@ module KeyTree
       result || raise(KeyError, "key not found: #{key}")
     end
 
+    def trees_with_key(key)
+      result = trees.select { |tree| tree.prefix?(key) }
+      raise(KeyError, "key not found: #{key}") if result.empty?
+      result
+    end
+
     def key?(key)
       trees.any? { |tree| tree.key?(key) }
     end
