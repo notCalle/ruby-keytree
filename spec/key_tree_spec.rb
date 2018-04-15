@@ -42,6 +42,15 @@ RSpec.describe KeyTree do
             KeyTree.load(loader => @t[loader]).meta_data['load.type']
           ).to eq loader
         end
+
+        it 'can prepend a key prefix to loaded data' do
+          expect(
+            KeyTree.load('pfx', loader => @t[loader])
+          ).to be_a KeyTree::Tree
+          expect(
+            KeyTree.load('pfx', loader => @f[loader])
+          ).to be_a KeyTree::Tree
+        end
       end
     end
 
