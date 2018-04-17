@@ -22,20 +22,29 @@ module KeyTree
     # key path matches in trees further away, returning nil. This preserves
     # the constraints that only leaves may contain a value.
     #
-    def [](key)
+    def [](key, &merger)
       return super(key) if key.is_a?(Numeric)
-      fetch(key)
+      fetch(key, &merger)
     rescue KeyError
       nil
     end
 
     def fetch(key)
-      tree_with_key(key).fetch(key)
+      return tree_with_key(key).fetch(key) unless block_given?
+
+      values = trees_with_key(key).map { |tree| tree.fetch(key) }
+      values.reverse.reduce { |left, right| yield(key, left, right) }
     end
 
     def tree_with_key(key)
       result = trees.detect { |tree| tree.prefix?(key) }
       result || raise(KeyError, "key not found: #{key}")
+    end
+
+    def trees_with_key(key)
+      result = trees.select { |tree| tree.prefix?(key) }
+      raise(KeyError, "key not found: #{key}") if result.empty?
+      result
     end
 
     def key?(key)
@@ -48,8 +57,10 @@ module KeyTree
 
     # Flattening a forest produces a tree with the equivalent view of key paths
     #
-    def flatten
-      trees.reverse_each.reduce(Tree[], :merge!)
+    def flatten(&merger)
+      trees.reverse_each.reduce(Tree[]) do |result, tree|
+        result.merge!(tree, &merger)
+      end
     end
 
     # Return a breadth-first Enumerator for all the trees in the forest,
