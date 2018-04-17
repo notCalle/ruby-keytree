@@ -17,11 +17,6 @@ RSpec.describe KeyTree do
   end
 
   context 'when loading' do
-    it 'requires exactly one typed serialization' do
-      expect { KeyTree.load }.to raise_error ArgumentError
-      expect { KeyTree.load(a: '', b: '') }.to raise_error ArgumentError
-    end
-
     before :context do
       @t = { yaml: "---\na: 1\n",   json: '{"a": 1}'   }
       @f = { yaml: "---\n- a: 1\n", json: '[{"a": 1}]' }
@@ -30,17 +25,26 @@ RSpec.describe KeyTree do
     %i[yaml json].each do |loader|
       context "from #{loader}" do
         it 'creates trees from maps' do
-          expect(KeyTree.load(loader => @t[loader])).to be_a KeyTree::Tree
+          expect(KeyTree.load(loader, @t[loader])).to be_a KeyTree::Tree
         end
 
         it 'creates forests from lists' do
-          expect(KeyTree.load(loader => @f[loader])).to be_a KeyTree::Forest
+          expect(KeyTree.load(loader, @f[loader])).to be_a KeyTree::Forest
         end
 
         it 'remembers the type of loaded data' do
           expect(
-            KeyTree.load(loader => @t[loader]).meta_data['load.type']
+            KeyTree.load(loader, @t[loader]).meta_data['load.type']
           ).to eq loader
+        end
+
+        it 'can prepend a key prefix to loaded data' do
+          expect(
+            KeyTree.load(loader, @t[loader], prefix: 'pfx')
+          ).to be_a KeyTree::Tree
+          expect(
+            KeyTree.load(loader, @f[loader], prefix: 'pfx')
+          ).to be_a KeyTree::Tree
         end
       end
     end
@@ -74,6 +78,20 @@ RSpec.describe KeyTree do
               KeyTree.open(@tree_fixture).meta_data['file.path']
             ).to eq @tree_fixture
           end
+        end
+      end
+    end
+
+    context 'from a file, with key prefix@' do
+      before :context do
+        @fixture = fixture('a@prefix_tree.yaml')
+        @expected = { 'a.b' => 2 }
+      end
+
+      it 'contains the expected key/values' do
+        tree = KeyTree.open(@fixture)
+        @expected.each do |key, value|
+          expect(tree[key]).to eq value
         end
       end
     end
@@ -113,6 +131,24 @@ RSpec.describe KeyTree do
 
       it 'does not have unexpected keys' do
         expect(@forest['a']).to be_nil
+      end
+    end
+
+    context 'from a directory with unloadable files' do
+      it 'raises a NoMethodError' do
+        expect {
+          KeyTree.open_all(fixture('danger-forest'))
+        }.to raise_error NoMethodError
+      end
+
+      context 'with a fallback loader' do
+        it 'does not raise an error' do
+          expect {
+            KeyTree::Loader.fallback(KeyTree::Loader::Nil)
+            KeyTree.open_all(fixture('danger-forest'))
+            KeyTree::Loader.fallback(nil)
+          }.not_to raise_error
+        end
       end
     end
   end

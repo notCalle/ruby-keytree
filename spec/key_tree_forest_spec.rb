@@ -89,13 +89,6 @@ RSpec.describe KeyTree::Forest do
         expect(KeyTree::Forest[@tree]['b']).to be_nil
       end
 
-      it 'is sorted by incrementing nesting depth' do
-        @contents = [@tree2, @forest1].each
-        @forest.each do |tree_or_forest|
-          expect(tree_or_forest).to eq @contents.next
-        end
-      end
-
       it 'hides forests behind trees' do
         expect(@forest['a']).to be_nil
         expect(@forest['a.b']).not_to be_nil

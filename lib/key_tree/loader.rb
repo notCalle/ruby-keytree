@@ -1,3 +1,5 @@
+require 'key_tree/loader/nil'
+
 module KeyTree
   # Module to manage key tree loaders
   module Loader
@@ -8,12 +10,16 @@ module KeyTree
 
     def self.[](type)
       type = type.to_sym if type.respond_to?(:to_sym)
-      loaders[type]
+      loaders[type] || @fallback
     end
 
     def self.[]=(type, loader_class)
       type = type.to_sym if type.respond_to?(:to_sym)
       loaders[type] = loader_class
+    end
+
+    def self.fallback(loader)
+      @fallback = loader
     end
 
     private_class_method
