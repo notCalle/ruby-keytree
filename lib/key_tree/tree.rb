@@ -47,6 +47,14 @@ module KeyTree
       super(Path[key_or_path])
     end
 
+    def default_key?(key_or_path)
+      return unless default_proc
+      default_proc.yield(self, Path[key_or_path])
+      true
+    rescue KeyError
+      false
+    end
+
     def prefix?(key_or_path)
       keys.any? { |key| key.prefix?(Path[key_or_path]) }
     end
