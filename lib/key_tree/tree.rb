@@ -68,5 +68,23 @@ module KeyTree
       dup.merge!(other, &merger)
     end
     alias + merge
+
+    def to_h
+      to_hash_tree
+    end
+
+    private
+
+    def to_hash_tree(key_pairs = self)
+      hash = key_pairs.group_by { |path, _| path.first.to_s }
+      hash.transform_values do |next_level|
+        next_level.map! do |path, value|
+          [path[1..-1], value]
+        end
+        first_key, first_value = next_level.first
+        next first_value if first_key.nil? || first_key.empty?
+        to_hash_tree(next_level)
+      end
+    end
   end
 end
