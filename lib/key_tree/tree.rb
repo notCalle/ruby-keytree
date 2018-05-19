@@ -73,6 +73,14 @@ module KeyTree
       to_hash_tree
     end
 
+    def to_json
+      to_hash_tree.to_json
+    end
+
+    def to_yaml
+      to_hash_tree.to_yaml
+    end
+
     private
 
     def to_hash_tree(key_pairs = self)
