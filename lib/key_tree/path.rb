@@ -29,7 +29,7 @@ module KeyTree
       when String
         initialize(key_or_path.split('.'))
       when Symbol
-        append(key_or_path)
+        initialize(key_or_path.to_s)
       when Array
         key_or_path.each { |key| append(key.to_sym) }
       else

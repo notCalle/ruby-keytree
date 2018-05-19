@@ -1,5 +1,40 @@
 # Release Notes
 
+## v0.5.1 – 2018-05-19
+
+### New methods
+
+  * `KeyTree::Tree#default_key?(key)`
+  * `KeyTree::Tree#format(fmtstr)`
+  * `KeyTree::Tree#to_h(string_keys: false)`
+  * `KeyTree::Tree#to_json`
+  * `KeyTree::Tree#to_yaml`
+
+### Bug fixes
+
+#### Make forests aware of default values in trees
+
+Ensure that forests pick up default values from a tree.
+
+  * ebd1cb06 Return trees and forests untouched
+  * 3451a430 Propagate default_proc in fetch
+  * e121a4c4 Consider trees to have a key if #default_key?
+  * 50bc56ec Detect if a default_proc yields a key value
+
+### New features
+
+#### Key tree content exporters
+
+Support for exporting the contents of a key tree to Hash, JSON, and YAML.
+Also includes a convenience string formatter, that fills format strings
+with values from a `Tree`.
+
+  * 9b5f05f0 Make exported hash key format selectable
+  * e3434d7e Add custom format method
+  * fa6a9b16 Serialize the contents of a tree to json or yaml
+  * 3fc6466b Convert a tree back into nested hashes
+  * e5aecd8b Split symbols into key paths
+
 ## v0.5.0 – 2018-04-17
 
 ### Changed methods

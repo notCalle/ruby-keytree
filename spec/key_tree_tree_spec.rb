@@ -14,9 +14,21 @@ RSpec.describe KeyTree::Tree do
       end
     end
 
+    context 'with a default proc' do
+      before :context do
+        @keytree = KeyTree::Tree.new { |*| true }
+      end
+
+      it 'can fetch default values for missing keys' do
+        expect { @keytree.fetch('a') }.not_to raise_error
+        expect(@keytree['a']).to be true
+      end
+    end
+
     context 'with a hash' do
       before :context do
         @hash = { a: 1, b: { c: 2 } }
+        @str_hash = @hash.transform_keys(&:to_s)
         @keys = %w[a b.c].map { |key| KeyTree::Path[key] }
         @key_prefixes = %w[b].map { |key| KeyTree::Path[key] }
         @values = 1.upto(2)
@@ -52,6 +64,22 @@ RSpec.describe KeyTree::Tree do
         @keys.each do |key|
           expect(@keytree[key]).to eq @values.next
         end
+      end
+
+      it 'can return an equivalent hash, with symbol keys' do
+        expect(@keytree.to_h).to eq @hash
+      end
+
+      it 'can return an equivalent hash, with string keys' do
+        expect(@keytree.to_h(string_keys: true)).to eq @str_hash
+      end
+
+      it 'can return a JSON serialization' do
+        expect(@keytree.to_json).to eq @str_hash.to_json
+      end
+
+      it 'can return a YAML serialization' do
+        expect(@keytree.to_yaml).to eq @str_hash.to_yaml
       end
     end
   end

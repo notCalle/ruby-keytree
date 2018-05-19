@@ -37,12 +37,16 @@ module KeyTree
     end
 
     def tree_with_key(key)
-      result = trees.detect { |tree| tree.prefix?(key) }
+      result = trees.detect do |tree|
+        tree.prefix?(key) || tree.default_key?(key)
+      end
       result || raise(KeyError, "key not found: #{key}")
     end
 
     def trees_with_key(key)
-      result = trees.select { |tree| tree.prefix?(key) }
+      result = trees.select do |tree|
+        tree.prefix?(key) || tree.default_key?(key)
+      end
       raise(KeyError, "key not found: #{key}") if result.empty?
       result
     end

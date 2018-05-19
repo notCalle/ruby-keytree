@@ -38,6 +38,18 @@ RSpec.describe KeyTree::Forest do
       it 'can be flattened into a tree' do
         expect(KeyTree::Forest[@tree].flatten).to be_a KeyTree::Tree
       end
+
+      context 'that has a default proc' do
+        before :context do
+          @tree = KeyTree::Tree.new { |*| true }
+          @forest = KeyTree::Forest[@tree]
+        end
+
+        it 'can fetch default values for missing keys' do
+          expect { @forest.fetch('a') }.not_to raise_error
+          expect(@forest['a']).to be true
+        end
+      end
     end
 
     context 'with a forest' do
