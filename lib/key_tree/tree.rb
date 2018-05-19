@@ -1,5 +1,6 @@
 require 'key_tree/path'
 require 'key_tree/meta_data'
+
 module KeyTree
   # A tree of key-value lookup tables (hashes)
   class Tree < Hash
@@ -68,6 +69,11 @@ module KeyTree
       dup.merge!(other, &merger)
     end
     alias + merge
+
+    # Format +fmtstr+ with values from the Tree
+    def format(fmtstr)
+      Kernel.format(fmtstr, Hash.new { |_, key| fetch(key) })
+    end
 
     def to_h
       to_hash_tree
