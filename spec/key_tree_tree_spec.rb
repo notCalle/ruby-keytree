@@ -14,6 +14,17 @@ RSpec.describe KeyTree::Tree do
       end
     end
 
+    context 'with a default proc' do
+      before :context do
+        @keytree = KeyTree::Tree.new { |*| true }
+      end
+
+      it 'can fetch default values for missing keys' do
+        expect { @keytree.fetch('a') }.not_to raise_error
+        expect(@keytree['a']).to be true
+      end
+    end
+
     context 'with a hash' do
       before :context do
         @hash = { a: 1, b: { c: 2 } }
