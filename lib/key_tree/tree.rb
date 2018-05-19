@@ -1,5 +1,6 @@
 require 'key_tree/path'
 require 'key_tree/meta_data'
+
 module KeyTree
   # A tree of key-value lookup tables (hashes)
   class Tree < Hash
@@ -68,5 +69,42 @@ module KeyTree
       dup.merge!(other, &merger)
     end
     alias + merge
+
+    # Format +fmtstr+ with values from the Tree
+    def format(fmtstr)
+      Kernel.format(fmtstr, Hash.new { |_, key| fetch(key) })
+    end
+
+    # Convert a Tree back to nested hashes.
+    #
+    # to_h => Hash, with symbol keys
+    # to_h(string_keys: true) => Hash, with string keys
+    def to_h(**kwargs)
+      to_hash_tree(**kwargs)
+    end
+
+    # Convert a Tree to JSON, with string keys
+    def to_json
+      to_hash_tree(string_keys: true).to_json
+    end
+
+    # Convert a Tree to YAML, with string keys
+    def to_yaml
+      to_hash_tree(string_keys: true).to_yaml
+    end
+
+    private
+
+    def to_hash_tree(key_pairs = self, string_keys: false)
+      hash = key_pairs.group_by do |path, _|
+        string_keys ? path.first.to_s : path.first
+      end
+      hash.transform_values do |next_level|
+        next_level.map! { |path, value| [path[1..-1], value] }
+        first_key, first_value = next_level.first
+        next first_value if first_key.nil? || first_key.empty?
+        to_hash_tree(next_level)
+      end
+    end
   end
 end
