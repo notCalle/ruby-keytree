@@ -1,5 +1,16 @@
 # Release Notes
 
+## v0.5.2 – 2018-05-19
+
+### Bug fixes
+
+#### Conform to Hash#fetch API
+`Tree#fetch` confused its block argument with `#default_proc`, but they
+have different arguments, so that didn't work out well.
+
+  * 0bd0a6e8 Use proper method to retreive values from trees
+  * 14128a6a Conform to Hash#fetch API
+
 ## v0.5.1 – 2018-05-19
 
 ### New methods
