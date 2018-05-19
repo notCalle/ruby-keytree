@@ -23,7 +23,6 @@ module KeyTree
     end
 
     def fetch(key_or_path, *args, &missing_key)
-      missing_key ||= default_proc
       super(Path[key_or_path], *args, &missing_key)
     end
 
