@@ -15,10 +15,12 @@ require 'key_tree/loader'
 module KeyTree
   def self.[](contents = {})
     case contents
+    when Tree, Forest
+      contents
     when Hash
-      KeyTree::Tree[contents]
+      Tree[contents]
     when Array
-      KeyTree::Forest[*contents]
+      Forest[*contents]
     else
       raise ArgumentError, "can't load #{contents.class} into a KeyTree"
     end

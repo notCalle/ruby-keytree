@@ -22,8 +22,9 @@ module KeyTree
       super(Path[key_or_path])
     end
 
-    def fetch(key_or_path, *args, &proc)
-      super(Path[key_or_path], *args, &proc)
+    def fetch(key_or_path, *args, &missing_key)
+      missing_key ||= default_proc
+      super(Path[key_or_path], *args, &missing_key)
     end
 
     def values_at(*keys)
@@ -45,6 +46,14 @@ module KeyTree
 
     def key?(key_or_path)
       super(Path[key_or_path])
+    end
+
+    def default_key?(key_or_path)
+      return unless default_proc
+      default_proc.yield(self, Path[key_or_path])
+      true
+    rescue KeyError
+      false
     end
 
     def prefix?(key_or_path)
