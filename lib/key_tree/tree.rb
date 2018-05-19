@@ -22,8 +22,9 @@ module KeyTree
       super(Path[key_or_path])
     end
 
-    def fetch(key_or_path, *args, &proc)
-      super(Path[key_or_path], *args, &proc)
+    def fetch(key_or_path, *args, &missing_key)
+      missing_key ||= default_proc
+      super(Path[key_or_path], *args, &missing_key)
     end
 
     def values_at(*keys)
