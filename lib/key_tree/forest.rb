@@ -22,33 +22,18 @@ module KeyTree
     # key path matches in trees further away, returning nil. This preserves
     # the constraints that only leaves may contain a value.
     #
-    def [](key, &merger)
+    def [](key)
       return super(key) if key.is_a?(Numeric)
-      fetch(key, &merger)
+      tree_with_default_key(key)[key]
     rescue KeyError
       nil
     end
 
     def fetch(key)
-      return tree_with_key(key)[key] unless block_given?
+      return tree_with_key(key).fetch(key) unless block_given?
 
-      values = trees_with_key(key).map { |tree| tree[key] }
+      values = trees_with_key(key).map { |tree| tree.fetch(key) }
       values.reverse.reduce { |left, right| yield(key, left, right) }
-    end
-
-    def tree_with_key(key)
-      result = trees.detect do |tree|
-        tree.prefix?(key) || tree.default_key?(key)
-      end
-      result || raise(KeyError, "key not found: #{key}")
-    end
-
-    def trees_with_key(key)
-      result = trees.select do |tree|
-        tree.prefix?(key) || tree.default_key?(key)
-      end
-      raise(KeyError, "key not found: #{key}") if result.empty?
-      result
     end
 
     def key?(key)
@@ -77,6 +62,30 @@ module KeyTree
           woods.each { |wood| remaining << wood }
         end
       end
+    end
+
+    private
+
+    def tree_with_default_key(key)
+      result = trees.detect do |tree|
+        tree.prefix?(key) || tree.default_key?(key)
+      end
+      result || raise(KeyError, %(key not found: "#{key}"))
+    end
+
+    def tree_with_key(key)
+      result = trees.detect do |tree|
+        tree.prefix?(key)
+      end
+      result || raise(KeyError, %(key not found: "#{key}"))
+    end
+
+    def trees_with_key(key)
+      result = trees.select do |tree|
+        tree.prefix?(key)
+      end
+      raise(KeyError, %(key not found: "#{key}")) if result.empty?
+      result
     end
   end
 end
