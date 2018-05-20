@@ -36,21 +36,6 @@ module KeyTree
       values.reverse.reduce { |left, right| yield(key, left, right) }
     end
 
-    def tree_with_key(key)
-      result = trees.detect do |tree|
-        tree.prefix?(key) || tree.default_key?(key)
-      end
-      result || raise(KeyError, "key not found: #{key}")
-    end
-
-    def trees_with_key(key)
-      result = trees.select do |tree|
-        tree.prefix?(key) || tree.default_key?(key)
-      end
-      raise(KeyError, "key not found: #{key}") if result.empty?
-      result
-    end
-
     def key?(key)
       trees.any? { |tree| tree.key?(key) }
     end
@@ -77,6 +62,23 @@ module KeyTree
           woods.each { |wood| remaining << wood }
         end
       end
+    end
+
+    private
+
+    def tree_with_key(key)
+      result = trees.detect do |tree|
+        tree.prefix?(key)
+      end
+      result || raise(KeyError, %(key not found: "#{key}"))
+    end
+
+    def trees_with_key(key)
+      result = trees.select do |tree|
+        tree.prefix?(key)
+      end
+      raise(KeyError, %(key not found: "#{key}")) if result.empty?
+      result
     end
   end
 end
