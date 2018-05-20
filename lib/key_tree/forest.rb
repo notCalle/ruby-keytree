@@ -66,6 +66,13 @@ module KeyTree
 
     private
 
+    def tree_with_default_key(key)
+      result = trees.detect do |tree|
+        tree.prefix?(key) || tree.default_key?(key)
+      end
+      result || raise(KeyError, %(key not found: "#{key}"))
+    end
+
     def tree_with_key(key)
       result = trees.detect do |tree|
         tree.prefix?(key)
