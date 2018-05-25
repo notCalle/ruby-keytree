@@ -1,5 +1,18 @@
 # Release Notes
 
+## v0.5.3 – 2018-05-25
+
+### Bug fixes
+
+#### Fix forest default values
+Previous release broke default value propagation for forests.
+
+  * c0eccde4 Update forest specs vs default values
+  * 35367fd1 Consider Tree default values for Forest#[]
+  * 7e10dda5 Add method to find trees with default values
+  * 57a320ac Revert "Use proper method to retreive values from trees"
+  * 8173775d Make tree_with_key methods private
+
 ## v0.5.2 – 2018-05-19
 
 ### Bug fixes

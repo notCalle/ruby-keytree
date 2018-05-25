@@ -45,8 +45,8 @@ RSpec.describe KeyTree::Forest do
           @forest = KeyTree::Forest[@tree]
         end
 
-        it 'can fetch default values for missing keys' do
-          expect { @forest.fetch('a') }.not_to raise_error
+        it 'can return default values for missing keys' do
+          expect { @forest.fetch('a') }.to raise_error
           expect(@forest['a']).to be true
         end
       end
