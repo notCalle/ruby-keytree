@@ -1,5 +1,8 @@
 require 'key_tree/path'
 require 'key_tree/meta_data'
+require_relative 'key_path_ext'
+
+using KeyTree::KeyPathExt
 
 module KeyTree
   # A tree of key-value lookup tables (hashes)
@@ -11,107 +14,125 @@ module KeyTree
     # Initialize a new KeyTree from nested Hash:es
     #
     def self.[](hash = {})
-      keytree = Tree.new
-      hash.each do |key, value|
+      return hash if hash.is_a?(Tree)
+
+      hash.each_with_object(Tree.new) do |(key, value), keytree|
+        value = Tree[value] if value.is_a?(Hash)
         keytree[key] = value
       end
-      keytree
     end
 
-    def [](key_or_path)
-      super(Path[key_or_path])
+    def [](key_path)
+      fetch_default(key_path)
     end
 
-    def fetch(key_or_path, *args, &missing_key)
-      super(Path[key_or_path], *args, &missing_key)
-    end
-
-    def values_at(*keys)
-      super(keys.map { |key_or_path| Path[key_or_path] })
-    end
-
-    def []=(key_or_path, new_value)
-      path = Path[key_or_path]
-
-      delete_if { |key, _| path.conflict?(key) }
-
-      case new_value
-      when Hash
-        new_value.each { |suffix, value| self[path + suffix] = value }
-      else
-        super(path, new_value)
+    def fetch_default(key_path, *args)
+      fetch(key_path, *args) do
+        default_proc.call(self, key_path) unless default_proc.nil?
       end
     end
 
-    def key?(key_or_path)
-      super(Path[key_or_path])
+    def fetch(key_path, *args, &key_missing)
+      key_path.to_key_path.reduce(self) do |subtree, key|
+        next super(key, *args, &key_missing) if subtree.equal?(self)
+        next subtree.fetch(key, *args, &key_missing) if subtree.is_a?(Hash)
+        return yield(key_path) if block_given?
+        raise KeyError, %(key not found: "#{key_path}")
+      end
     end
 
-    def default_key?(key_or_path)
-      return unless default_proc
-      default_proc.yield(self, Path[key_or_path])
+    def values_at(*key_paths)
+      key_paths.map { |key_path| self[key_path] }
+    end
+
+    def []=(key_path, new_value)
+      *prefix_path, last_key = key_path.to_key_path
+      if prefix_path.empty?
+        super(last_key, new_value)
+      else
+        prefix_tree = prefix_path.reduce(self) do |subtree, key|
+          next subtree[key] = {} unless subtree[key].is_a?(Hash)
+          subtree[key]
+        end
+        prefix_tree[last_key] = new_value
+      end
+    end
+
+    def include?(key_path)
+      key_paths.include?(key_path.to_key_path)
+    end
+
+    def prefix?(key_path)
+      key_path.to_key_path.reduce(self) do |subtree, key|
+        return false unless subtree.is_a?(Tree)
+        return false unless subtree.key?(key)
+        subtree[key]
+      end
       true
-    rescue KeyError
-      false
     end
 
-    def prefix?(key_or_path)
-      keys.any? { |key| key.prefix?(Path[key_or_path]) }
+    def value?(needle)
+      return true if super(needle)
+      values.any? { |straw| straw.value?(needle) if straw.is_a?(Tree) }
     end
-
-    def conflict?(key_or_path)
-      keys.any? { |key| key.conflict?(Path[key_or_path]) }
-    end
+    alias has_value? value?
 
     # The merging of trees needs some extra consideration; due to the
     # nature of key paths, prefix conflicts must be deleted
     #
-    def merge!(other, &merger)
+    def merge!(other)
       other = Tree[other] unless other.is_a?(Tree)
-      delete_if { |key, _| other.conflict?(key) }
-      super
+      super(other) do |key, lhs, rhs|
+        next lhs.merge!(rhs) if lhs.is_a?(Hash) && rhs.is_a?(Hash)
+        next yield(key, lhs, rhs) if block_given?
+        rhs
+      end
     end
     alias << merge!
 
-    def merge(other, &merger)
-      dup.merge!(other, &merger)
+    def merge(other)
+      super(other) do |key, lhs, rhs|
+        next lhs.merge(rhs) if lhs.is_a?(Hash) && rhs.is_a?(Hash)
+        next yield(key, lhs, rhs) if block_given?
+        rhs
+      end
     end
     alias + merge
 
-    # Format +fmtstr+ with values from the Tree
-    def format(fmtstr)
-      Kernel.format(fmtstr, Hash.new { |_, key| fetch(key) })
-    end
-
     # Convert a Tree back to nested hashes.
     #
-    # to_h => Hash, with symbol keys
-    # to_h(string_keys: true) => Hash, with string keys
-    def to_h(**kwargs)
-      to_hash_tree(**kwargs)
+    # :call-seq:
+    #   to_h => Hash, with symbol keys
+    #   to_h(stringify_keys: true) => Hash, with string keys
+    def to_h(stringify_keys: false)
+      transform = stringify_keys ? :to_s : :itself
+      deep_transform_keys(&transform)
     end
 
     # Convert a Tree to JSON, with string keys
+    #
+    # :call-seq:
+    #   to_json => String
     def to_json
-      to_hash_tree(string_keys: true).to_json
+      deep_transform_keys(&:to_s).to_json
     end
 
     # Convert a Tree to YAML, with string keys
+    #
+    # :call-seq:
+    #   to_yaml => String
     def to_yaml
-      to_hash_tree(string_keys: true).to_yaml
+      deep_transform_keys(&:to_s).to_yaml
     end
 
-    private
-
-    def to_hash_tree(key_pairs = self, string_keys: false)
-      hash = key_pairs.group_by do |path, _|
-        string_keys ? path.first.to_s : path.first
-      end
-      hash.transform_values do |next_level|
-        next_level.map! { |path, value| [path[1..-1], value] }
-        first_key, first_value = next_level.first
-        next first_value if first_key.nil? || first_key.empty?
-        to_hash_tree(next_level)
+    # Transform keys, returning a nested Hash
+    #
+    # :call-seq:
+    #   deep_transform_keys { |key| block } => Hash
+    def deep_transform_keys(&transform)
+      each_with_object({}) do |(key, value), result|
+        value = value.deep_transform_keys(&transform) if value.is_a?(Tree)
+        result[yield(key)] = value
       end
     end
   end
