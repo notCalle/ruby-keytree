@@ -28,9 +28,9 @@ RSpec.describe KeyTree::Tree do
     context 'with a hash' do
       before :context do
         @hash = { a: 1, b: { c: 2 } }
-        @str_hash = @hash.transform_keys(&:to_s)
-        @keys = %w[a b.c].map { |key| KeyTree::Path[key] }
-        @key_prefixes = %w[b].map { |key| KeyTree::Path[key] }
+        @str_hash = { 'a' => 1, 'b' => { 'c' => 2 } }
+        @keys = %w[a b.c]
+        @key_prefixes = %w[b]
         @values = 1.upto(2)
       end
 
