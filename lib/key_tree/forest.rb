@@ -62,6 +62,11 @@ module KeyTree
       end
     end
 
+    # Return all visible key paths in the forest
+    def key_paths
+      trees.reduce(Set.new) { |result, tree| result.merge(tree.key_paths) }
+    end
+
     private
 
     def tree_with_key(key)

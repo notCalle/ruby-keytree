@@ -58,6 +58,19 @@ module KeyTree
       end
     end
 
+    # Return all maximal key paths in a tree
+    #
+    # :call-seq:
+    #   key_paths => Array of KeyTree::Path
+    def key_paths
+      each_with_object([]) do |(key, value), result|
+        key = key.to_key_path
+        next result << key unless value.is_a?(Tree)
+        subkeys = value.key_paths
+        result.concat(subkeys.map { |path| key + path })
+      end
+    end
+
     def include?(key_path)
       key_paths.include?(key_path.to_key_path)
     end
