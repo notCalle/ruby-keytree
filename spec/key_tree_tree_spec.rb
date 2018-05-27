@@ -44,7 +44,7 @@ RSpec.describe KeyTree::Tree do
 
       it 'includes the expected key paths' do
         @keys.each do |key|
-          expect(@keytree).to include(key)
+          expect(@keytree.include?(key)).to be_truthy
         end
       end
 
@@ -54,9 +54,9 @@ RSpec.describe KeyTree::Tree do
         end
       end
 
-      it 'does not include key prefixes' do
+      it 'includes key prefixes' do
         @key_prefixes.each do |key|
-          expect(@keytree).not_to include(key)
+          expect(@keytree.include?(key)).to be_falsey
         end
       end
 
@@ -71,7 +71,7 @@ RSpec.describe KeyTree::Tree do
       end
 
       it 'can return an equivalent hash, with string keys' do
-        expect(@keytree.to_h(string_keys: true)).to eq @str_hash
+        expect(@keytree.to_h(stringify_keys: true)).to eq @str_hash
       end
 
       it 'can return a JSON serialization' do
