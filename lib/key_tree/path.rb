@@ -56,7 +56,7 @@ module KeyTree
     end
 
     def +(other)
-      super(other.to_key_path)
+      dup.concat(other.to_key_path)
     end
 
     # Returns a key path without the leading +prefix+
