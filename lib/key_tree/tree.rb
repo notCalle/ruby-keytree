@@ -23,13 +23,11 @@ module KeyTree
     end
 
     def [](key_path)
-      fetch_default(key_path)
-    end
-
-    def fetch_default(key_path, *args)
-      fetch(key_path, *args) do
+      fetch(key_path) do
         default_proc.call(self, key_path) unless default_proc.nil?
       end
+    rescue KeyError
+      default
     end
 
     def fetch(key_path, *args, &key_missing)
