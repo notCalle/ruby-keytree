@@ -59,22 +59,14 @@ module KeyTree
       super(other.to_key_path)
     end
 
-    # drop(+prefix+)
+    # Returns a key path without the leading +prefix+
     #
-    #   Returns a key path without the leading prefix
-    #
-    # drop(+n+)
-    #
-    #   Returns a key path without the first n elements
-    #
-    def drop(prefix)
-      case prefix
-      when Path
-        return self unless prefix?(other)
-        drop(other.length)
-      else
-        super(prefix)
-      end
+    # :call-seq:
+    #   Path - other => Path
+    def -(other)
+      other = other.to_key_path
+      raise KeyError unless prefix?(other)
+      super(other.length)
     end
 
     # Is +other+ a prefix?
