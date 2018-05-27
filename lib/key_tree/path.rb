@@ -1,3 +1,7 @@
+require_relative 'key_path_ext'
+
+using KeyTree::KeyPathExt
+
 module KeyTree
   #
   # Representation of the key path to a value in a key tree
@@ -8,9 +12,9 @@ module KeyTree
     #
     # Make a new key path from one or more keys or paths
     #
-    def self.[](*keys_or_paths)
-      keys_or_paths.reduce(Path.new) do |result, key_or_path|
-        result << Path.new(key_or_path)
+    def self.[](*key_paths)
+      key_paths.reduce(Path.new) do |result, key_path|
+        result << key_path.to_key_path
       end
     end
 
@@ -24,17 +28,19 @@ module KeyTree
     #   KeyTree::Path.new("a.b.c")
     #   => ["a", "b", "c"]
     #
-    def initialize(key_or_path = [])
-      case key_or_path
-      when String
-        initialize(key_or_path.split('.'))
-      when Symbol
-        initialize(key_or_path.to_s)
+    def initialize(key_path = nil)
+      case key_path
+      when NilClass
+        nil
       when Array
-        key_or_path.each { |key| append(key.to_sym) }
+        concat(key_path.map(&:to_sym))
       else
-        raise ArgumentError, 'key path must be String, Symbol or Array of those'
+        initialize(key_path.to_key_path)
       end
+    end
+
+    def to_key_path
+      self
     end
 
     def to_s
@@ -46,18 +52,11 @@ module KeyTree
     end
 
     def <<(other)
-      case other
-      when Path
-        other.reduce(self) do |result, key|
-          result.append(key)
-        end
-      else
-        self << Path[other]
-      end
+      concat(other.to_key_path)
     end
 
     def +(other)
-      dup << other
+      super(other.to_key_path)
     end
 
     # drop(+prefix+)
@@ -80,11 +79,15 @@ module KeyTree
 
     # Is +other+ a prefix?
     #
+    # :call-seq:
+    #   prefix?(other) => boolean
     def prefix?(other)
+      other = other.to_key_path
       return false if other.length > length
       key_enum = each
       other.all? { |other_key| key_enum.next == other_key }
     end
+    alias === prefix?
 
     # Would +other+ conflict?
     #
