@@ -24,9 +24,7 @@ module KeyTree
     #
     def [](key)
       return super(key) if key.is_a?(Numeric)
-      tree_with_default_key(key)[key]
-    rescue KeyError
-      nil
+      trees.lazy.map { |tree| tree[key] }.detect { |value| !value.nil? }
     end
 
     def fetch(key)
@@ -37,11 +35,11 @@ module KeyTree
     end
 
     def key?(key)
-      trees.any? { |tree| tree.key?(key) }
+      trees.lazy.any? { |tree| tree.key?(key) }
     end
 
     def prefix?(key)
-      trees.any? { |tree_or_forest| tree_or_forest.prefix?(key) }
+      trees.lazy.any? { |tree| tree.prefix?(key) }
     end
 
     # Flattening a forest produces a tree with the equivalent view of key paths
@@ -74,7 +72,7 @@ module KeyTree
     end
 
     def tree_with_key(key)
-      result = trees.detect do |tree|
+      result = trees.lazy.detect do |tree|
         tree.prefix?(key)
       end
       result || raise(KeyError, %(key not found: "#{key}"))
