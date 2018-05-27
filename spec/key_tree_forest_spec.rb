@@ -46,7 +46,7 @@ RSpec.describe KeyTree::Forest do
         end
 
         it 'can return default values for missing keys' do
-          expect { @forest.fetch('a') }.to raise_error
+          expect { @forest.fetch('a') }.to raise_error KeyError
           expect(@forest['a']).to be true
         end
       end
@@ -102,8 +102,8 @@ RSpec.describe KeyTree::Forest do
       end
 
       it 'hides forests behind trees' do
-        expect(@forest['a']).to be_nil
-        expect(@forest['a.b']).not_to be_nil
+        expect(@forest['a']).to eq @tree2['a']
+        expect(@forest['a.b']).to eq @tree2['a.b']
       end
     end
   end
