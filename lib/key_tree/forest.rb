@@ -1,7 +1,9 @@
 require 'key_tree/tree'
 require 'key_tree/meta_data'
+require_relative 'refinements'
+module KeyTree # rubocop:disable Style/Documentation
+  using Refinements
 
-module KeyTree
   #
   # A forest is a (possibly nested) collection of trees
   #

@@ -2,6 +2,7 @@ require 'key_tree/version'
 require 'key_tree/tree'
 require 'key_tree/forest'
 require 'key_tree/loader'
+require 'key_tree/refinements'
 
 # Manage a tree of keys
 #
@@ -13,6 +14,8 @@ require 'key_tree/loader'
 #   -> 2
 #
 module KeyTree
+  using Refinements
+
   def self.[](contents = {})
     case contents
     when Tree, Forest

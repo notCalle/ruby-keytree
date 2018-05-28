@@ -1,10 +1,10 @@
 require 'key_tree/path'
 require 'key_tree/meta_data'
-require_relative 'key_path_ext'
+require_relative 'refinements'
 
-using KeyTree::KeyPathExt
+module KeyTree # rubocop:disable Style/Documentation
+  using Refinements
 
-module KeyTree
   # A tree of key-value lookup tables (hashes)
   class Tree < Hash
     include MetaData
