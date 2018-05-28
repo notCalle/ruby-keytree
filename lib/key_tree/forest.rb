@@ -37,10 +37,12 @@ module KeyTree
     def key?(key)
       trees.lazy.any? { |tree| tree.key?(key) }
     end
+    alias has_key? key?
 
     def prefix?(key)
       trees.lazy.any? { |tree| tree.prefix?(key) }
     end
+    alias has_prefix? prefix?
 
     def key_path?(key)
       trees.lazy.any? { |tree| tree.key_path?(key) }
