@@ -85,4 +85,20 @@ RSpec.describe KeyTree::Tree do
       end
     end
   end
+
+  context 'when assigning values to keys' do
+    before :example do
+      @keytree = KeyTree::Tree[a: { b: 2 }]
+    end
+
+    it 'does not delete sibling keys' do
+      @keytree['a.c'] = 3
+      expect(@keytree).to have_key_path('a.b')
+    end
+
+    it 'deletes child keys' do
+      @keytree['a'] = 1
+      expect(@keytree).not_to have_key_path('a.b')
+    end
+  end
 end
