@@ -42,6 +42,11 @@ module KeyTree
       trees.lazy.any? { |tree| tree.prefix?(key) }
     end
 
+    def key_path?(key)
+      trees.lazy.any? { |tree| tree.key_path?(key) }
+    end
+    alias has_key_path? key_path?
+
     # Flattening a forest produces a tree with the equivalent view of key paths
     #
     def flatten(&merger)
