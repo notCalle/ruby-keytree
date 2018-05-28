@@ -5,7 +5,7 @@ RSpec.describe KeyTree::Forest do
 
   context 'when initialized' do
     before :context do
-      @tree = KeyTree::Tree[a: 1]
+      @tree = KeyTree::Tree[a: 1, b: { c: 3 }]
     end
 
     context 'with nothing' do
@@ -27,12 +27,18 @@ RSpec.describe KeyTree::Forest do
         expect(KeyTree::Forest[@tree]).to include(@tree)
       end
 
+      it 'includes the expected key paths' do
+        @tree.key_paths.each do |key_path|
+          expect(KeyTree::Forest[@tree]).to include(key_path)
+        end
+      end
+
       it 'can get the expected values for keys' do
         expect(KeyTree::Forest[@tree]['a']).to eq 1
       end
 
       it 'returns nil for undefined keys' do
-        expect(KeyTree::Forest[@tree]['b']).to be_nil
+        expect(KeyTree::Forest[@tree]['c']).to be_nil
       end
 
       it 'can be flattened into a tree' do
@@ -94,11 +100,11 @@ RSpec.describe KeyTree::Forest do
       end
 
       it 'can get the expected values for keys' do
-        expect(KeyTree::Forest[@tree]['a']).to eq 1
+        expect(@forest['a.b']).to eq 2
       end
 
       it 'returns nil for undefined keys' do
-        expect(KeyTree::Forest[@tree]['b']).to be_nil
+        expect(@forest['b']).to be_nil
       end
 
       it 'hides forests behind trees' do
