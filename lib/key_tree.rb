@@ -1,7 +1,8 @@
-require 'key_tree/version'
-require 'key_tree/tree'
 require 'key_tree/forest'
 require 'key_tree/loader'
+require 'key_tree/refinements'
+require 'key_tree/tree'
+require 'key_tree/version'
 
 # Manage a tree of keys
 #
@@ -13,17 +14,10 @@ require 'key_tree/loader'
 #   -> 2
 #
 module KeyTree
+  using Refinements
+
   def self.[](contents = {})
-    case contents
-    when Tree, Forest
-      contents
-    when Hash
-      Tree[contents]
-    when Array
-      Forest[*contents]
-    else
-      raise ArgumentError, "can't load #{contents.class} into a KeyTree"
-    end
+    contents.to_key_wood
   end
 
   # Load a KeyTree from some external serialization
@@ -49,7 +43,7 @@ module KeyTree
     contents = loader.load(serialization)
     contents = { prefix => contents } unless prefix.nil?
 
-    self[contents].with_meta_data do |meta_data|
+    contents.to_key_wood.with_meta_data do |meta_data|
       meta_data << { load: { type: type, loader: loader } }
       meta_data << { load: { prefix: prefix } } unless prefix.nil?
     end

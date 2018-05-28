@@ -1,8 +1,8 @@
-require_relative 'key_path_ext'
+require_relative 'refinements'
 
-using KeyTree::KeyPathExt
+module KeyTree # rubocop:disable Style/Documentation
+  using Refinements
 
-module KeyTree
   #
   # Representation of the key path to a value in a key tree
   #

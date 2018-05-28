@@ -1,12 +1,12 @@
-require 'key_tree/path'
-require 'key_tree/meta_data'
-require_relative 'key_path_ext'
+require_relative 'meta_data'
+require_relative 'path'
+require_relative 'refinements'
 
-using KeyTree::KeyPathExt
+module KeyTree # rubocop:disable Style/Documentation
+  using Refinements
 
-module KeyTree
   # A tree of key-value lookup tables (hashes)
-  class Tree < Hash
+  class Tree < Hash # rubocop:disable Metrics/ClassLength
     include MetaData
     #
     # KeyTree::Tree.new(+hash+)
@@ -17,10 +17,12 @@ module KeyTree
       return hash if hash.is_a?(Tree)
 
       hash.each_with_object(Tree.new) do |(key, value), keytree|
-        value = Tree[value] if value.is_a?(Hash)
         keytree[key] = value
       end
     end
+
+    alias to_key_tree itself
+    alias to_key_wood itself
 
     def [](key_path)
       fetch(key_path) do
@@ -44,15 +46,13 @@ module KeyTree
     end
 
     def []=(key_path, new_value)
-      *prefix_path, last_key = key_path.to_key_path
-      if prefix_path.empty?
-        super(last_key, new_value)
+      key_path = key_path.to_key_path
+
+      if key_path.one?
+        new_value = new_value.to_key_tree if new_value.is_a?(Hash)
+        super(key_path.first, new_value)
       else
-        prefix_tree = prefix_path.reduce(self) do |subtree, key|
-          next subtree[key] = {} unless subtree[key].is_a?(Hash)
-          subtree[key]
-        end
-        prefix_tree[last_key] = new_value
+        deposit(*key_path, new_value)
       end
     end
 
@@ -148,6 +148,20 @@ module KeyTree
         value = value.deep_transform_keys(&transform) if value.is_a?(Tree)
         result[yield(key)] = value
       end
+    end
+
+    private
+
+    # Deposit a new value at a key path.
+    #
+    # :call-seq:
+    #   depisit(*key_path, new_value)
+    def deposit(*prefix_path, last_key, new_value)
+      prefix_tree = prefix_path.reduce(self) do |subtree, key|
+        next subtree[key] = Tree.new unless subtree[key].is_a?(Tree)
+        subtree[key]
+      end
+      prefix_tree[last_key] = new_value
     end
   end
 end

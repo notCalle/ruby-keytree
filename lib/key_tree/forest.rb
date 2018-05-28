@@ -1,7 +1,10 @@
-require 'key_tree/tree'
-require 'key_tree/meta_data'
+require_relative 'meta_data'
+require_relative 'refinements'
+require_relative 'tree'
 
-module KeyTree
+module KeyTree # rubocop:disable Style/Documentation
+  using Refinements
+
   #
   # A forest is a (possibly nested) collection of trees
   #
@@ -10,9 +13,12 @@ module KeyTree
 
     def self.[](*contents)
       contents.reduce(Forest.new) do |result, content|
-        result << KeyTree[content]
+        result << content.to_key_wood
       end
     end
+
+    alias to_key_forest itself
+    alias to_key_wood itself
 
     # For a numeric key, return the n:th tree in the forest
     #
