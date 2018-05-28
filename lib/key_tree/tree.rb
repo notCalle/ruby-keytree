@@ -1,5 +1,5 @@
-require 'key_tree/path'
-require 'key_tree/meta_data'
+require_relative 'meta_data'
+require_relative 'path'
 require_relative 'refinements'
 
 module KeyTree # rubocop:disable Style/Documentation

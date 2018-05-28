@@ -1,6 +1,7 @@
-require 'key_tree/tree'
-require 'key_tree/meta_data'
+require_relative 'meta_data'
 require_relative 'refinements'
+require_relative 'tree'
+
 module KeyTree # rubocop:disable Style/Documentation
   using Refinements
 
