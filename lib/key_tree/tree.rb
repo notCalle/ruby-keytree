@@ -33,12 +33,14 @@ module KeyTree # rubocop:disable Style/Documentation
     end
 
     def fetch(key_path, *args, &key_missing)
-      key_path.to_key_path.reduce(self) do |subtree, key|
-        next super(key, *args, &key_missing) if subtree.equal?(self)
-        next subtree.fetch(key, *args, &key_missing) if subtree.is_a?(Hash)
-        return yield(key_path) if block_given?
+      first_key, *rest_path = key_path.to_key_path
+      result = super(first_key, *args, &key_missing)
+      unless result.is_a?(Tree)
+        return result if rest_path.empty?
         raise KeyError, %(key not found: "#{key_path}")
       end
+      raise KeyError, %(key not found: "#{key_path}") if rest_path.empty?
+      result.fetch(rest_path, *args, &key_missing)
     end
 
     def values_at(*key_paths)
