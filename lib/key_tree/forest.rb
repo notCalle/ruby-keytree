@@ -13,7 +13,7 @@ module KeyTree # rubocop:disable Style/Documentation
 
     def self.[](*contents)
       contents.reduce(Forest.new) do |result, content|
-        result << KeyTree[content]
+        result << content.to_key_wood
       end
     end
 
