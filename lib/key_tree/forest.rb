@@ -30,7 +30,13 @@ module KeyTree # rubocop:disable Style/Documentation
     #
     def [](key)
       return super(key) if key.is_a?(Numeric)
-      trees.lazy.map { |tree| tree[key] }.detect { |value| !value.nil? }
+
+      trees.lazy.each do |tree|
+        result = tree[key]
+        return result unless result.nil?
+        break if tree.prefix?(key)
+      end
+      nil
     end
 
     def fetch(key)
