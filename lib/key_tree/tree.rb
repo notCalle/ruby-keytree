@@ -25,9 +25,10 @@ module KeyTree # rubocop:disable Style/Documentation
     alias to_key_wood itself
 
     def [](key_path)
-      fetch(key_path) do
+      result = fetch(key_path) do
         default_proc.call(self, key_path) unless default_proc.nil?
       end
+      return result unless result.is_a?(Tree)
     rescue KeyError
       default
     end
@@ -35,11 +36,8 @@ module KeyTree # rubocop:disable Style/Documentation
     def fetch(key_path, *args, &key_missing)
       first_key, *rest_path = key_path.to_key_path
       result = super(first_key, *args, &key_missing)
-      unless result.is_a?(Tree)
-        return result if rest_path.empty?
-        raise KeyError, %(key not found: "#{key_path}")
-      end
-      raise KeyError, %(key not found: "#{key_path}") if rest_path.empty?
+      return result if rest_path.empty?
+      raise KeyError, %(key not found: "#{key_path}") unless result.is_a?(Tree)
       result.fetch(rest_path, *args, &key_missing)
     end
 
