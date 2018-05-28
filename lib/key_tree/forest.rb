@@ -47,6 +47,15 @@ module KeyTree
     end
     alias has_key_path? key_path?
 
+    def include?(needle)
+      case needle
+      when Tree, Forest
+        super(needle)
+      else
+        key_path?(needle)
+      end
+    end
+
     # Flattening a forest produces a tree with the equivalent view of key paths
     #
     def flatten(&merger)
