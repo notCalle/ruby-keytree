@@ -72,6 +72,8 @@ module KeyTree
     def include?(key_path)
       key_paths.include?(key_path.to_key_path)
     end
+    alias key_path? include?
+    alias has_key_path? include?
 
     def prefix?(key_path)
       key_path.to_key_path.reduce(self) do |subtree, key|
@@ -81,6 +83,7 @@ module KeyTree
       end
       true
     end
+    alias has_prefix? prefix?
 
     def value?(needle)
       return true if super(needle)
