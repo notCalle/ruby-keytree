@@ -44,7 +44,7 @@ RSpec.describe KeyTree::Tree do
 
       it 'includes the expected key paths' do
         @keys.each do |key|
-          expect(@keytree.include?(key)).to be_truthy
+          expect(@keytree).to have_key_path(key)
         end
       end
 
@@ -56,7 +56,8 @@ RSpec.describe KeyTree::Tree do
 
       it 'includes key prefixes' do
         @key_prefixes.each do |key|
-          expect(@keytree.include?(key)).to be_falsey
+          expect(@keytree).not_to have_key_path(key)
+          expect(@keytree).to have_prefix(key)
         end
       end
 
