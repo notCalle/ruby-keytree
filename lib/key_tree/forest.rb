@@ -17,6 +17,9 @@ module KeyTree # rubocop:disable Style/Documentation
       end
     end
 
+    alias to_key_forest itself
+    alias to_key_wood itself
+
     # For a numeric key, return the n:th tree in the forest
     #
     # For a key path convertable key, return the closest match in the forest

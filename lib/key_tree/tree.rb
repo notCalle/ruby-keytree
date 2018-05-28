@@ -22,6 +22,9 @@ module KeyTree # rubocop:disable Style/Documentation
       end
     end
 
+    alias to_key_tree itself
+    alias to_key_wood itself
+
     def [](key_path)
       fetch(key_path) do
         default_proc.call(self, key_path) unless default_proc.nil?
