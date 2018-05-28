@@ -54,10 +54,11 @@ RSpec.describe KeyTree::Tree do
         end
       end
 
-      it 'includes key prefixes' do
+      it 'does not include key prefixes' do
         @key_prefixes.each do |key|
-          expect(@keytree).not_to have_key_path(key)
           expect(@keytree).to have_prefix(key)
+          expect(@keytree).not_to have_key_path(key)
+          expect(@keytree[key]).to be nil
         end
       end
 
