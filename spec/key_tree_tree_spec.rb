@@ -70,10 +70,6 @@ RSpec.describe KeyTree::Tree do
         expect(@keytree.to_h).to eq @hash
       end
 
-      it 'can return an equivalent hash, with string keys' do
-        expect(@keytree.to_h(stringify_keys: true)).to eq @str_hash
-      end
-
       it 'can return a JSON serialization' do
         expect(@keytree.to_json).to eq @str_hash.to_json
       end
