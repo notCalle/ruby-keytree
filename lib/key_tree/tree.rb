@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'meta_data'
 require_relative 'path'
 require_relative 'refinements'

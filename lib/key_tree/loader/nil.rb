@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module KeyTree
   module Loader
     # KeyTree loader that ignores payload and produces an empty tree

@@ -1,8 +1,6 @@
-RSpec.describe KeyTree::Tree do
-  it 'is a subclass of hash' do
-    expect(KeyTree::Tree.new).to be_a Hash
-  end
+# frozen_string_literal: true
 
+RSpec.describe KeyTree::Tree do
   context 'when initialized' do
     context 'with nothing' do
       it 'does not raise an error' do

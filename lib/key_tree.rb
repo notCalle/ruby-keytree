@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require 'key_tree/forest'
 require 'key_tree/loader'
 require 'key_tree/refinements'
 require 'key_tree/tree'
-require 'key_tree/version'
 
 # Manage a tree of keys
 #
