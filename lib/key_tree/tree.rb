@@ -1,85 +1,114 @@
 # frozen_string_literal: true
 
+require 'forwardable'
 require_relative 'meta_data'
 require_relative 'path'
 require_relative 'refinements'
+require_relative 'refine/deep_hash'
 
 module KeyTree # rubocop:disable Style/Documentation
   using Refinements
+  using Refine::DeepHash
 
   # A tree of key-value lookup tables (hashes)
-  class Tree < Hash # rubocop:disable Metrics/ClassLength
+  class Tree
     include MetaData
+    extend Forwardable
     #
     # KeyTree::Tree.new(+hash+)
     #
     # Initialize a new KeyTree from nested Hash:es
     #
     def self.[](hash = {})
-      return hash if hash.is_a?(Tree)
-
-      hash.each_with_object(Tree.new) do |(key, value), keytree|
-        keytree[key] = value
-      end
+      new(hash)
     end
+
+    def initialize(hash = {}, default = nil, &default_proc)
+      @hash = hash.to_h.deep_transform_keys(&:to_sym)
+      @default = default
+      @default_proc = default_proc
+    end
+
+    attr_reader :default, :default_proc
 
     alias to_key_tree itself
     alias to_key_wood itself
 
+    delegate %i[empty? to_h to_json] => :@hash
+
+    # Convert a Tree to YAML, with string keys
+    #
+    # :call-seq:
+    #   to_yaml => String
+    def to_yaml
+      to_h.deep_transform_keys(&:to_s).to_yaml
+    end
+
     def [](key_path)
-      result = fetch(key_path) do
-        default_proc.call(self, key_path) unless default_proc.nil?
+      fetch(key_path) do
+        next default_proc.call(self, key_path) unless default_proc.nil?
+        default
       end
-      return result unless result.is_a?(Tree)
     rescue KeyError
       default
     end
 
     def fetch(key_path, *args, &key_missing)
-      first_key, *rest_path = key_path.to_key_path
-      result = super(first_key, *args, &key_missing)
-      return result if rest_path.empty?
-      raise KeyError, %(key not found: "#{key_path}") unless result.is_a?(Tree)
-      result.fetch(rest_path, *args, &key_missing)
+      @hash.deep_fetch(key_path.to_key_path, *args, &key_missing)
+    end
+
+    def store(key_path, new_value)
+      @hash.deep_store(key_path.to_key_path, new_value)
+    end
+
+    def store!(key_path, new_value)
+      store(key_path, new_value)
+    rescue KeyError
+      delete!(key_path)
+      retry
+    end
+    alias []= store!
+
+    def delete(key_path)
+      @hash.deep_delete(key_path.to_key_path)
+    end
+
+    def delete!(key_path)
+      delete(key_path)
+    rescue KeyError
+      key_path = key_path[0..-2]
+      retry
     end
 
     def values_at(*key_paths)
       key_paths.map { |key_path| self[key_path] }
     end
 
-    def []=(key_path, new_value)
-      key_path = key_path.to_key_path
-
-      if key_path.one?
-        new_value = new_value.to_key_tree if new_value.is_a?(Hash)
-        super(key_path.first, new_value)
-      else
-        deposit(*key_path, new_value)
-      end
-    end
-
     # Return all maximal key paths in a tree
     #
     # :call-seq:
-    #   key_paths => Array of KeyTree::Path
-    def key_paths
-      each_with_object([]) do |(key, value), result|
-        key = key.to_key_path
-        next result << key unless value.is_a?(Tree)
-        subkeys = value.key_paths
-        result.concat(subkeys.map { |path| key + path })
+    #   keys => Array of KeyTree::Path
+    def keys
+      @hash.deep.each_with_object([]) do |(key_path, value), result|
+        result << key_path.to_key_path unless value.is_a?(Hash)
       end
     end
+    alias key_paths keys
 
     def include?(key_path)
-      key_paths.include?(key_path.to_key_path)
+      fetch(key_path)
+      true
+    rescue KeyError
+      false
     end
+    alias key? include?
+    alias has_key? include?
     alias key_path? include?
     alias has_key_path? include?
 
     def prefix?(key_path)
-      key_path.to_key_path.reduce(self) do |subtree, key|
-        return false unless subtree.is_a?(Tree)
+      key_path.to_key_path.reduce(@hash) do |subtree, key|
+        return false unless subtree.is_a?(Hash)
         return false unless subtree.key?(key)
         subtree[key]
       end
@@ -88,82 +117,29 @@ module KeyTree # rubocop:disable Style/Documentation
     alias has_prefix? prefix?
 
     def value?(needle)
-      return true if super(needle)
-      values.any? { |straw| straw.value?(needle) if straw.is_a?(Tree) }
+      @hash.deep.lazy.any? { |(_, straw)| straw == needle }
     end
     alias has_value? value?
 
-    # The merging of trees needs some extra consideration; due to the
-    # nature of key paths, prefix conflicts must be deleted
+    # Merge values from +other+ tree into self
     #
-    def merge!(other)
-      other = Tree[other] unless other.is_a?(Tree)
-      super(other) do |key, lhs, rhs|
-        next lhs.merge!(rhs) if lhs.is_a?(Hash) && rhs.is_a?(Hash)
-        next yield(key, lhs, rhs) if block_given?
-        rhs
-      end
+    # :call-seq:
+    #   merge!(other) => self
+    #   merge!(other) { |key, lhs, rhs| } => self
+    def merge!(other, &block)
+      @hash.deep_merge!(other.to_h, &block)
+      self
     end
     alias << merge!
 
-    def merge(other)
-      super(other) do |key, lhs, rhs|
-        next lhs.merge(rhs) if lhs.is_a?(Hash) && rhs.is_a?(Hash)
-        next yield(key, lhs, rhs) if block_given?
-        rhs
-      end
+    # Return a new tree by merging values from +other+ tree
+    #
+    # :call-seq:
+    #   merge(other) => Tree
+    #   merge(other) { |key, lhs, rhs| } => Tree
+    def merge(other, &block)
+      @hash.deep_merge(other.to_h, &block).to_key_tree
     end
     alias + merge
-
-    # Convert a Tree back to nested hashes.
-    #
-    # :call-seq:
-    #   to_h => Hash, with symbol keys
-    #   to_h(stringify_keys: true) => Hash, with string keys
-    def to_h(stringify_keys: false)
-      transform = stringify_keys ? :to_s : :itself
-      deep_transform_keys(&transform)
-    end
-
-    # Convert a Tree to JSON, with string keys
-    #
-    # :call-seq:
-    #   to_json => String
-    def to_json
-      deep_transform_keys(&:to_s).to_json
-    end
-
-    # Convert a Tree to YAML, with string keys
-    #
-    # :call-seq:
-    #   to_yaml => String
-    def to_yaml
-      deep_transform_keys(&:to_s).to_yaml
-    end
-
-    # Transform keys, returning a nested Hash
-    #
-    # :call-seq:
-    #   deep_transform_keys { |key| block } => Hash
-    def deep_transform_keys(&transform)
-      each_with_object({}) do |(key, value), result|
-        value = value.deep_transform_keys(&transform) if value.is_a?(Tree)
-        result[yield(key)] = value
-      end
-    end
-
-    private
-
-    # Deposit a new value at a key path.
-    #
-    # :call-seq:
-    #   depisit(*key_path, new_value)
-    def deposit(*prefix_path, last_key, new_value)
-      prefix_tree = prefix_path.reduce(self) do |subtree, key|
-        next subtree[key] = Tree.new unless subtree[key].is_a?(Tree)
-        subtree[key]
-      end
-      prefix_tree[last_key] = new_value
-    end
   end
 end
