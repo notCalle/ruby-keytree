@@ -24,7 +24,7 @@ module KeyTree # rubocop:disable Style/Documentation
     end
 
     def initialize(hash = {}, default = nil, &default_proc)
-      @hash = hash.to_h.deep_transform_keys(&:to_sym)
+      @hash = hash.to_h.deep_key_pathify
       @default = default
       @default_proc = default_proc
     end
