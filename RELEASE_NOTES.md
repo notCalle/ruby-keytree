@@ -1,5 +1,52 @@
 # Release Notes
 
+## v0.6.0 – 2018-05-30
+
+### Major changes
+
+  * Updated to Ruby ~> 2.3
+  * Added refinements module for `to_key_*` conversions in core classes
+  * `KeyTree::Tree` rewritten from scratch, to use a refinements
+    to an internal `Hash` structure instead of subclassing `Hash`
+
+### New methods
+
+  * `KeyTree::Forest#key_paths`
+  * `KeyTree::Forest#to_key_forest`
+  * `KeyTree::Forest#to_key_wood`
+  * `KeyTree::Path#===`
+  * `KeyTree::Path#to_key_path`
+  * `KeyTree::Tree#delete(key_path)`
+  * `KeyTree::Tree#delete!(key_path)`
+  * `KeyTree::Tree#store(key_path, new_value)`
+  * `KeyTree::Tree#store!(key_path, new_value)`
+  * `KeyTree::Tree#to_key_tree`
+  * `KeyTree::Tree#to_key_wood`
+
+  * Using `KeyTree::Refinements`
+    * `Array#to_key_forest`
+    * `Array#to_key_path`
+    * `Array#to_key_wood`
+    * `Hash#to_key_tree`
+    * `Hash#to_key_wood`
+    * `String#to_key_path`
+    * `Symbol#to_key_path`
+
+  * Using `KeyTree::Refine::DeepHash`
+    * `Hash#deep`
+    * `Hash#deep_delete(key_path)`
+    * `Hash#deep_fetch(key_path, default, &default_proc)`
+    * `Hash#deep_merge(other)`
+    * `Hash#deep_merge!(other)`
+    * `Hash#deep_store(key_path, new_value)`
+    * `Hash#deep_transform_keys(&block)`
+    * `Hash#deep_transform_keys!(&block)`
+
+### Removed methods
+
+  * `KeyTree::Tree` no longer inherits `Hash`, but most of the
+    inherited methods didn't work properly anyway
+
 ## v0.5.3 – 2018-05-25
 
 ### Bug fixes
