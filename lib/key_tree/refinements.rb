@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'forest'
 require_relative 'path'
 require_relative 'tree'

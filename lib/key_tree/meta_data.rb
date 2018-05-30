@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module KeyTree
   #
   # Mixin for adding a meta_data key tree

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe KeyTree::Forest do
   it 'is a subclass of array' do
     expect(KeyTree::Forest[]).to be_an Array

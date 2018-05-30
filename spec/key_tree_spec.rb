@@ -1,8 +1,6 @@
-RSpec.describe KeyTree do
-  it 'has a version number' do
-    expect(KeyTree::VERSION).not_to be nil
-  end
+# frozen_string_literal: true
 
+RSpec.describe KeyTree do
   it 'can create a key tree' do
     expect { KeyTree[] }.not_to raise_error
     expect(KeyTree[]).to be_a KeyTree::Tree

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'refinements'
 
 module KeyTree # rubocop:disable Style/Documentation
