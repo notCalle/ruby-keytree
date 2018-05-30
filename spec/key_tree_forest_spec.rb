@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe KeyTree::Forest do
   it 'is a subclass of array' do
     expect(KeyTree::Forest[]).to be_an Array
@@ -5,7 +7,7 @@ RSpec.describe KeyTree::Forest do
 
   context 'when initialized' do
     before :context do
-      @tree = KeyTree::Tree[a: 1]
+      @tree = KeyTree::Tree[a: 1, b: { c: 3 }]
     end
 
     context 'with nothing' do
@@ -27,12 +29,18 @@ RSpec.describe KeyTree::Forest do
         expect(KeyTree::Forest[@tree]).to include(@tree)
       end
 
+      it 'includes the expected key paths' do
+        @tree.key_paths.each do |key_path|
+          expect(KeyTree::Forest[@tree]).to include(key_path)
+        end
+      end
+
       it 'can get the expected values for keys' do
         expect(KeyTree::Forest[@tree]['a']).to eq 1
       end
 
       it 'returns nil for undefined keys' do
-        expect(KeyTree::Forest[@tree]['b']).to be_nil
+        expect(KeyTree::Forest[@tree]['c']).to be_nil
       end
 
       it 'can be flattened into a tree' do
@@ -46,7 +54,7 @@ RSpec.describe KeyTree::Forest do
         end
 
         it 'can return default values for missing keys' do
-          expect { @forest.fetch('a') }.to raise_error
+          expect { @forest.fetch('a') }.to raise_error KeyError
           expect(@forest['a']).to be true
         end
       end
@@ -94,16 +102,16 @@ RSpec.describe KeyTree::Forest do
       end
 
       it 'can get the expected values for keys' do
-        expect(KeyTree::Forest[@tree]['a']).to eq 1
+        expect(@forest['a.b']).to eq 2
       end
 
       it 'returns nil for undefined keys' do
-        expect(KeyTree::Forest[@tree]['b']).to be_nil
+        expect(@forest['b']).to be_nil
       end
 
       it 'hides forests behind trees' do
-        expect(@forest['a']).to be_nil
-        expect(@forest['a.b']).not_to be_nil
+        expect(@forest['a']).to eq @tree2['a']
+        expect(@forest['a.b']).to eq @tree2['a.b']
       end
     end
   end

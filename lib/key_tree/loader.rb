@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'key_tree/loader/nil'
 
 module KeyTree

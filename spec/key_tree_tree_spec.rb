@@ -1,8 +1,6 @@
-RSpec.describe KeyTree::Tree do
-  it 'is a subclass of hash' do
-    expect(KeyTree::Tree.new).to be_a Hash
-  end
+# frozen_string_literal: true
 
+RSpec.describe KeyTree::Tree do
   context 'when initialized' do
     context 'with nothing' do
       it 'does not raise an error' do
@@ -28,9 +26,9 @@ RSpec.describe KeyTree::Tree do
     context 'with a hash' do
       before :context do
         @hash = { a: 1, b: { c: 2 } }
-        @str_hash = @hash.transform_keys(&:to_s)
-        @keys = %w[a b.c].map { |key| KeyTree::Path[key] }
-        @key_prefixes = %w[b].map { |key| KeyTree::Path[key] }
+        @str_hash = { 'a' => 1, 'b' => { 'c' => 2 } }
+        @keys = %w[a b.c]
+        @key_prefixes = %w[b]
         @values = 1.upto(2)
       end
 
@@ -44,7 +42,7 @@ RSpec.describe KeyTree::Tree do
 
       it 'includes the expected key paths' do
         @keys.each do |key|
-          expect(@keytree).to include(key)
+          expect(@keytree).to have_key_path(key)
         end
       end
 
@@ -56,7 +54,9 @@ RSpec.describe KeyTree::Tree do
 
       it 'does not include key prefixes' do
         @key_prefixes.each do |key|
-          expect(@keytree).not_to include(key)
+          expect(@keytree).to have_prefix(key)
+          expect(@keytree).not_to have_key_path(key)
+          expect(@keytree[key]).to be nil
         end
       end
 
@@ -70,10 +70,6 @@ RSpec.describe KeyTree::Tree do
         expect(@keytree.to_h).to eq @hash
       end
 
-      it 'can return an equivalent hash, with string keys' do
-        expect(@keytree.to_h(string_keys: true)).to eq @str_hash
-      end
-
       it 'can return a JSON serialization' do
         expect(@keytree.to_json).to eq @str_hash.to_json
       end
@@ -81,6 +77,22 @@ RSpec.describe KeyTree::Tree do
       it 'can return a YAML serialization' do
         expect(@keytree.to_yaml).to eq @str_hash.to_yaml
       end
+    end
+  end
+
+  context 'when assigning values to keys' do
+    before :example do
+      @keytree = KeyTree::Tree[a: { b: 2 }]
+    end
+
+    it 'does not delete sibling keys' do
+      @keytree['a.c'] = 3
+      expect(@keytree).to have_key_path('a.b')
+    end
+
+    it 'deletes child keys' do
+      @keytree['a'] = 1
+      expect(@keytree).not_to have_key_path('a.b')
     end
   end
 end

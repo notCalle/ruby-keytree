@@ -1,118 +1,145 @@
-require 'key_tree/path'
-require 'key_tree/meta_data'
+# frozen_string_literal: true
 
-module KeyTree
+require 'forwardable'
+require_relative 'meta_data'
+require_relative 'path'
+require_relative 'refinements'
+require_relative 'refine/deep_hash'
+
+module KeyTree # rubocop:disable Style/Documentation
+  using Refinements
+  using Refine::DeepHash
+
   # A tree of key-value lookup tables (hashes)
-  class Tree < Hash
+  class Tree
     include MetaData
+    extend Forwardable
     #
     # KeyTree::Tree.new(+hash+)
     #
     # Initialize a new KeyTree from nested Hash:es
     #
     def self.[](hash = {})
-      keytree = Tree.new
-      hash.each do |key, value|
-        keytree[key] = value
+      new(hash)
+    end
+
+    def initialize(hash = {}, default = nil, &default_proc)
+      @hash = hash.to_h.deep_transform_keys(&:to_sym)
+      @default = default
+      @default_proc = default_proc
+    end
+
+    attr_reader :default, :default_proc
+
+    alias to_key_tree itself
+    alias to_key_wood itself
+
+    delegate %i[empty? to_h to_json] => :@hash
+
+    # Convert a Tree to YAML, with string keys
+    #
+    # :call-seq:
+    #   to_yaml => String
+    def to_yaml
+      to_h.deep_transform_keys(&:to_s).to_yaml
+    end
+
+    def [](key_path)
+      fetch(key_path) do
+        next default_proc.call(self, key_path) unless default_proc.nil?
+        default
       end
-      keytree
+    rescue KeyError
+      default
     end
 
-    def [](key_or_path)
-      super(Path[key_or_path])
+    def fetch(key_path, *args, &key_missing)
+      @hash.deep_fetch(key_path.to_key_path, *args, &key_missing)
     end
 
-    def fetch(key_or_path, *args, &missing_key)
-      super(Path[key_or_path], *args, &missing_key)
+    def store(key_path, new_value)
+      @hash.deep_store(key_path.to_key_path, new_value)
     end
 
-    def values_at(*keys)
-      super(keys.map { |key_or_path| Path[key_or_path] })
+    def store!(key_path, new_value)
+      store(key_path, new_value)
+    rescue KeyError
+      delete!(key_path)
+      retry
+    end
+    alias []= store!
+
+    def delete(key_path)
+      @hash.deep_delete(key_path.to_key_path)
     end
 
-    def []=(key_or_path, new_value)
-      path = Path[key_or_path]
+    def delete!(key_path)
+      delete(key_path)
+    rescue KeyError
+      key_path = key_path[0..-2]
+      retry
+    end
 
-      delete_if { |key, _| path.conflict?(key) }
+    def values_at(*key_paths)
+      key_paths.map { |key_path| self[key_path] }
+    end
 
-      case new_value
-      when Hash
-        new_value.each { |suffix, value| self[path + suffix] = value }
-      else
-        super(path, new_value)
+    # Return all maximal key paths in a tree
+    #
+    # :call-seq:
+    #   keys => Array of KeyTree::Path
+    def keys
+      @hash.deep.each_with_object([]) do |(key_path, value), result|
+        result << key_path.to_key_path unless value.is_a?(Hash)
       end
     end
+    alias key_paths keys
 
-    def key?(key_or_path)
-      super(Path[key_or_path])
-    end
-
-    def default_key?(key_or_path)
-      return unless default_proc
-      default_proc.yield(self, Path[key_or_path])
+    def include?(key_path)
+      fetch(key_path)
       true
     rescue KeyError
       false
     end
+    alias key? include?
+    alias has_key? include?
+    alias key_path? include?
+    alias has_key_path? include?
 
-    def prefix?(key_or_path)
-      keys.any? { |key| key.prefix?(Path[key_or_path]) }
+    def prefix?(key_path)
+      key_path.to_key_path.reduce(@hash) do |subtree, key|
+        return false unless subtree.is_a?(Hash)
+        return false unless subtree.key?(key)
+        subtree[key]
+      end
+      true
     end
+    alias has_prefix? prefix?
 
-    def conflict?(key_or_path)
-      keys.any? { |key| key.conflict?(Path[key_or_path]) }
+    def value?(needle)
+      @hash.deep.lazy.any? { |(_, straw)| straw == needle }
     end
+    alias has_value? value?
 
-    # The merging of trees needs some extra consideration; due to the
-    # nature of key paths, prefix conflicts must be deleted
+    # Merge values from +other+ tree into self
     #
-    def merge!(other, &merger)
-      other = Tree[other] unless other.is_a?(Tree)
-      delete_if { |key, _| other.conflict?(key) }
-      super
+    # :call-seq:
+    #   merge!(other) => self
+    #   merge!(other) { |key, lhs, rhs| } => self
+    def merge!(other, &block)
+      @hash.deep_merge!(other.to_h, &block)
+      self
     end
     alias << merge!
 
-    def merge(other, &merger)
-      dup.merge!(other, &merger)
+    # Return a new tree by merging values from +other+ tree
+    #
+    # :call-seq:
+    #   merge(other) => Tree
+    #   merge(other) { |key, lhs, rhs| } => Tree
+    def merge(other, &block)
+      @hash.deep_merge(other.to_h, &block).to_key_tree
     end
     alias + merge
-
-    # Format +fmtstr+ with values from the Tree
-    def format(fmtstr)
-      Kernel.format(fmtstr, Hash.new { |_, key| fetch(key) })
-    end
-
-    # Convert a Tree back to nested hashes.
-    #
-    # to_h => Hash, with symbol keys
-    # to_h(string_keys: true) => Hash, with string keys
-    def to_h(**kwargs)
-      to_hash_tree(**kwargs)
-    end
-
-    # Convert a Tree to JSON, with string keys
-    def to_json
-      to_hash_tree(string_keys: true).to_json
-    end
-
-    # Convert a Tree to YAML, with string keys
-    def to_yaml
-      to_hash_tree(string_keys: true).to_yaml
-    end
-
-    private
-
-    def to_hash_tree(key_pairs = self, string_keys: false)
-      hash = key_pairs.group_by do |path, _|
-        string_keys ? path.first.to_s : path.first
-      end
-      hash.transform_values do |next_level|
-        next_level.map! { |path, value| [path[1..-1], value] }
-        first_key, first_value = next_level.first
-        next first_value if first_key.nil? || first_key.empty?
-        to_hash_tree(next_level)
-      end
-    end
   end
 end

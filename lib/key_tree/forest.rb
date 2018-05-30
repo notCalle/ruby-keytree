@@ -1,7 +1,12 @@
-require 'key_tree/tree'
-require 'key_tree/meta_data'
+# frozen_string_literal: true
 
-module KeyTree
+require_relative 'meta_data'
+require_relative 'refinements'
+require_relative 'tree'
+
+module KeyTree # rubocop:disable Style/Documentation
+  using Refinements
+
   #
   # A forest is a (possibly nested) collection of trees
   #
@@ -10,9 +15,12 @@ module KeyTree
 
     def self.[](*contents)
       contents.reduce(Forest.new) do |result, content|
-        result << KeyTree[content]
+        result << content.to_key_wood
       end
     end
+
+    alias to_key_forest itself
+    alias to_key_wood itself
 
     # For a numeric key, return the n:th tree in the forest
     #
@@ -24,8 +32,12 @@ module KeyTree
     #
     def [](key)
       return super(key) if key.is_a?(Numeric)
-      tree_with_default_key(key)[key]
-    rescue KeyError
+
+      trees.lazy.each do |tree|
+        result = tree[key]
+        return result unless result.nil?
+        break if tree.prefix?(key)
+      end
       nil
     end
 
@@ -37,11 +49,27 @@ module KeyTree
     end
 
     def key?(key)
-      trees.any? { |tree| tree.key?(key) }
+      trees.lazy.any? { |tree| tree.key?(key) }
     end
+    alias has_key? key?
 
     def prefix?(key)
-      trees.any? { |tree_or_forest| tree_or_forest.prefix?(key) }
+      trees.lazy.any? { |tree| tree.prefix?(key) }
+    end
+    alias has_prefix? prefix?
+
+    def key_path?(key)
+      trees.lazy.any? { |tree| tree.key_path?(key) }
+    end
+    alias has_key_path? key_path?
+
+    def include?(needle)
+      case needle
+      when Tree, Forest
+        super(needle)
+      else
+        key_path?(needle)
+      end
     end
 
     # Flattening a forest produces a tree with the equivalent view of key paths
@@ -64,17 +92,15 @@ module KeyTree
       end
     end
 
-    private
-
-    def tree_with_default_key(key)
-      result = trees.detect do |tree|
-        tree.prefix?(key) || tree.default_key?(key)
-      end
-      result || raise(KeyError, %(key not found: "#{key}"))
+    # Return all visible key paths in the forest
+    def key_paths
+      trees.reduce(Set.new) { |result, tree| result.merge(tree.key_paths) }
     end
 
+    private
+
     def tree_with_key(key)
-      result = trees.detect do |tree|
+      result = trees.lazy.detect do |tree|
         tree.prefix?(key)
       end
       result || raise(KeyError, %(key not found: "#{key}"))

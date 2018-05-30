@@ -1,4 +1,4 @@
-require 'key_tree/tree'
+# frozen_string_literal: true
 
 module KeyTree
   #
@@ -20,3 +20,5 @@ module KeyTree
     end
   end
 end
+
+require_relative 'tree'
