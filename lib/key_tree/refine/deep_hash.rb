@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../path'
+
 module KeyTree
   module Refine
     # Refinements to Hash for deep_ methods, for traversing nested structures
@@ -112,6 +114,19 @@ module KeyTree
           result.transform_values! do |value|
             next value unless value.is_a?(Hash)
             value.deep_transform_keys!(&block)
+          end
+        end
+
+        # Comvert any keys containing a +.+ in a hash structure
+        # to nested hashes.
+        #
+        # :call-seq:
+        #   deep_key_pathify => Hash
+        def deep_key_pathify
+          each_with_object({}) do |(key, value), result|
+            key_path = Path[key]
+            value = value.deep_key_pathify if value.is_a?(Hash)
+            result.deep_store(key_path, value)
           end
         end
 
