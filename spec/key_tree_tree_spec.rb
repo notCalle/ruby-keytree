@@ -78,6 +78,33 @@ RSpec.describe KeyTree::Tree do
         expect(@keytree.to_yaml).to eq @str_hash.to_yaml
       end
     end
+
+    context 'with a hash, having key_pathey keys' do
+      before :context do
+        @hash = { 'a.b' => 2, %i[a c] => 3 }
+        @keypaths = @hash.keys.map { |key| KeyTree::Path[key] }
+        @values = @hash.values
+        @keytree = KeyTree::Tree[@hash]
+      end
+
+      it 'contains the expected key paths' do
+        @keypaths.each do |key_path|
+          expect(@keytree).to have_key key_path
+        end
+      end
+
+      it 'contains the expected values' do
+        @values.each do |value|
+          expect(@keytree).to have_value value
+        end
+      end
+
+      it 'can fetch values for key paths' do
+        @hash.each do |key_path, value|
+          expect(@keytree.fetch(key_path)).to eq value
+        end
+      end
+    end
   end
 
   context 'when assigning values to keys' do
