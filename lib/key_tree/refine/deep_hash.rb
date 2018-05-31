@@ -24,14 +24,17 @@ module KeyTree
         #   deep_fetch(key_path) => value
         #   deep_fetch(key_path, default) => value || default
         #   deep_fetch(key_path) { |key_path| block } => value || block
-        def deep_fetch(key_path, *args, &key_missing)
-          key_error = [KeyError, %(key path invalid: "#{key_path}")]
-          result = key_path.reduce(self) do |hash, key|
-            raise(*key_error) unless hash.is_a?(Hash)
-            hash.fetch(key, *args, &key_missing)
+        def deep_fetch(key_path, *default)
+          catch do |ball|
+            result = key_path.reduce(self) do |hash, key|
+              throw ball unless hash.is_a?(Hash)
+              hash.fetch(key) { throw ball }
+            end
+            return result unless result.is_a?(Hash)
           end
-          return result unless result.is_a?(Hash)
-          raise(*key_error)
+          return yield(key_path) if block_given?
+          return default.first unless default.empty?
+          raise KeyError, %(key path invalid: "#{key_path}")
         end
 
         # Store a new value in a nested hash structure, expanding it
