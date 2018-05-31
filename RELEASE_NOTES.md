@@ -1,5 +1,30 @@
 # Release Notes
 
+## v0.6.1 – 2018-05-31
+
+### New methods
+
+  * `KeyTree::Tree#fetch_default(key, default) { block }`
+
+  * Using `KeyTree::Refine::DeepHash`
+    * `Hash#deep_key_pathify`
+
+### Bug fixes
+
+Default processing for forests was broken.
+
+  * 7ff646ff Fix Forest#fetch default vs KeyError processing
+  * 62f6fd73 Add default aware fetch method
+  * 00f0b163 Manage deep_fetch KeyError generation on our own
+
+#### Handle incoming key pathish keys
+
+When a `Hash` had keys that looked like key paths, they were not correctly
+converted to nested hashes with symbol keys.
+
+  * c23df1dd Change key transform for incoming hashes
+  * 09b526c8 Add new hash refinement for key_path-ification
+
 ## v0.6.0 – 2018-05-30
 
 ### Major changes
