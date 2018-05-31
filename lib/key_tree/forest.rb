@@ -41,11 +41,23 @@ module KeyTree # rubocop:disable Style/Documentation
       nil
     end
 
-    def fetch(key)
-      return tree_with_key(key).fetch(key) unless block_given?
-
-      values = trees_with_key(key).map { |tree| tree.fetch(key) }
-      values.reverse.reduce { |left, right| yield(key, left, right) }
+    # Fetch a value from a forest
+    #
+    # :call-seq:
+    #   fetch(key) => value
+    #   fetch(key, default) => value
+    #   fetch(key) { |key| } => value
+    #
+    # The first form raises a +KeyError+ unless +key+ has a value.
+    def fetch(key, *default)
+      trees.lazy.each do |tree|
+        catch do |ball|
+          return tree.fetch(key) { throw ball }
+        end
+      end
+      return yield(key) if block_given?
+      return default.first unless default.empty?
+      raise KeyError, %(key not found: "#{key}")
     end
 
     def key?(key)
