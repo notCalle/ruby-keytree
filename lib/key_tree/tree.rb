@@ -24,7 +24,7 @@ module KeyTree # rubocop:disable Style/Documentation
     end
 
     def initialize(hash = {}, default = nil, &default_proc)
-      @hash = hash.to_h.deep_transform_keys(&:to_sym)
+      @hash = hash.to_h.deep_key_pathify
       @default = default
       @default_proc = default_proc
     end
@@ -45,12 +45,17 @@ module KeyTree # rubocop:disable Style/Documentation
     end
 
     def [](key_path)
-      fetch(key_path) do
-        next default_proc.call(self, key_path) unless default_proc.nil?
-        default
+      fetch_default(key_path, default)
+    end
+
+    def fetch_default(key_path, *default)
+      catch do |ball|
+        return fetch(key_path) { throw ball }
       end
-    rescue KeyError
-      default
+      return default_proc.call(self, key_path) unless default_proc.nil?
+      return yield(key_path) if block_given?
+      return default.first unless default.empty?
+      raise KeyError, %(key not found: "#{key_path}")
     end
 
     def fetch(key_path, *args, &key_missing)
