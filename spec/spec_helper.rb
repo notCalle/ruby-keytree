@@ -1,11 +1,16 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'key_tree'
 require 'json'
 require 'yaml'
+require 'simplecov'
+SimpleCov.start do
+  add_filter %r{^/spec/}
+end
 
-Dir[File.dirname(__FILE__) + '/helpers/*.rb'].each { |helper| load helper }
+require 'key_tree'
+
+Dir[__dir__ + '/helpers/*.rb'].each { |helper| load helper }
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
