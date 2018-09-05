@@ -6,7 +6,7 @@ module KeyTree
   module Refine
     # Refinements to Hash for deep_ methods, for traversing nested structures
     module DeepHash
-      refine Hash do # rubocop:disable Metrics/BlockLength
+      refine Hash do
         # Return a deep enumerator for all (+key_path+, +value+) pairs in a
         # nested hash structure.
         #
