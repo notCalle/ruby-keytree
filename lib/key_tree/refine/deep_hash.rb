@@ -34,6 +34,7 @@ module KeyTree
           end
           return yield(key_path) if block_given?
           return default.first unless default.empty?
+
           raise KeyError, %(key path invalid: "#{key_path}")
         end
 
@@ -49,6 +50,7 @@ module KeyTree
           result = prefix_path.reduce(self) do |hash, key|
             result = hash.fetch(key) { hash[key] = {} }
             next result if result.is_a?(Hash)
+
             raise KeyError, %(prefix has value: "#{key_path}")
           end
           result[last_key] = new_value
@@ -65,6 +67,7 @@ module KeyTree
           result = prefix_path.reduce(self) do |hash, key|
             result = hash.fetch(key, nil)
             next result if result.is_a?(Hash)
+
             raise KeyError, %(prefix has value: "#{key_path}")
           end
           result.delete(last_key)
@@ -79,6 +82,7 @@ module KeyTree
           merge!(other) do |key, lhs, rhs|
             next lhs.merge!(rhs) if lhs.is_a?(Hash) && rhs.is_a?(Hash)
             next yield(key, lhs, rhs) if block_given?
+
             rhs
           end
         end
@@ -92,6 +96,7 @@ module KeyTree
           merge(other) do |key, lhs, rhs|
             next lhs.merge(rhs) if lhs.is_a?(Hash) && rhs.is_a?(Hash)
             next yield(key, lhs, rhs) if block_given?
+
             rhs
           end
         end
@@ -104,6 +109,7 @@ module KeyTree
           result = transform_keys(&block)
           result.transform_values! do |value|
             next value unless value.is_a?(Hash)
+
             value.deep_transform_keys(&block)
           end
         end
@@ -116,6 +122,7 @@ module KeyTree
           result = transform_keys!(&block)
           result.transform_values! do |value|
             next value unless value.is_a?(Hash)
+
             value.deep_transform_keys!(&block)
           end
         end

@@ -68,6 +68,7 @@ module KeyTree # rubocop:disable Style/Documentation
     def -(other)
       other = other.to_key_path
       raise KeyError unless prefix?(other)
+
       super(other.length)
     end
 
@@ -78,6 +79,7 @@ module KeyTree # rubocop:disable Style/Documentation
     def prefix?(other)
       other = other.to_key_path
       return false if other.length > length
+
       key_enum = each
       other.all? { |other_key| key_enum.next == other_key }
     end
