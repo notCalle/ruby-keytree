@@ -57,6 +57,7 @@ module KeyTree # rubocop:disable Style/Documentation
       end
       return yield(key) if block_given?
       return default.first unless default.empty?
+
       raise KeyError, %(key not found: "#{key}")
     end
 
@@ -99,6 +100,7 @@ module KeyTree # rubocop:disable Style/Documentation
         remaining = [self]
         remaining.each do |woods|
           next yielder << woods if woods.is_a?(Tree)
+
           woods.each { |wood| remaining << wood }
         end
       end
@@ -123,6 +125,7 @@ module KeyTree # rubocop:disable Style/Documentation
         tree.prefix?(key)
       end
       raise(KeyError, %(key not found: "#{key}")) if result.empty?
+
       result
     end
   end

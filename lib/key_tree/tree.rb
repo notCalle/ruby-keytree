@@ -55,6 +55,7 @@ module KeyTree # rubocop:disable Style/Documentation
       return default_proc.call(self, key_path) unless default_proc.nil?
       return yield(key_path) if block_given?
       return default.first unless default.empty?
+
       raise KeyError, %(key not found: "#{key_path}")
     end
 
@@ -115,6 +116,7 @@ module KeyTree # rubocop:disable Style/Documentation
       key_path.to_key_path.reduce(@hash) do |subtree, key|
         return false unless subtree.is_a?(Hash)
         return false unless subtree.key?(key)
+
         subtree[key]
       end
       true

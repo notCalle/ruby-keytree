@@ -63,7 +63,8 @@ module KeyTree
       end
 
       return keytree unless block_given?
-      yield(keytree)
+
+      yield keytree
     end
 
     # Open all files in a directory and load their contents into
@@ -72,11 +73,13 @@ module KeyTree
       Dir.children(dir_name).reduce(KeyTree::Forest.new) do |result, file|
         path = File.join(dir_name, file)
         next result if File.symlink?(path) && !follow_links
+
         stat = File.stat(path)
         # rubocop:disable Security/Open
         next result << open(path) if stat.file?
         # rubocop:enable Security/Open
         next result unless recurse && stat.directory?
+
         result << open_all(path, follow_links: follow_links, recurse: true)
       end
     end
