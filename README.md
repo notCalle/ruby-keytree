@@ -1,4 +1,5 @@
 [![Gem Version](https://badge.fury.io/rb/key_tree.svg)](https://badge.fury.io/rb/key_tree) [![Maintainability](https://api.codeclimate.com/v1/badges/ac48756e80007e0cd6f9/maintainability)](https://codeclimate.com/github/notCalle/ruby-keytree/maintainability)
+[![Build Status](https://dev.azure.com/notCalle/GitHub%20CI/_apis/build/status/notCalle.ruby-tangle)](https://dev.azure.com/notCalle/GitHub%20CI/_build/latest?definitionId=2)
 
 # KeyTree
 
