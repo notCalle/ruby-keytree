@@ -10,10 +10,10 @@ RSpec.describe KeyTree::Refine::DeepHash do
   context 'refines Hash with' do
     let(:hash) { { a: { b: 1, c: 2 }, b: 3 } }
     let(:expected_deep) do
-      [[%i[a], hash[:a]],
-       [%i[a b], hash[:a][:b]],
-       [%i[a c], hash[:a][:c]],
-       [%i[b], hash[:b]]]
+      [[%i[a], { b: 1, c: 2 }],
+       [%i[a b], 1],
+       [%i[a c], 2],
+       [%i[b], 3]]
     end
 
     context '#deep' do
@@ -119,16 +119,45 @@ RSpec.describe KeyTree::Refine::DeepHash do
       end
     end
 
+    let(:stringy_deep) do
+      [[%w[a], { 'b' => 1, 'c' => 2 }],
+       [%w[a b], 1],
+       [%w[a c], 2],
+       [%w[b], 3]]
+    end
+
     context '#deep_transform_keys' do
-      pending 'tests not implemented'
+      it 'returns a new hash tree with transformed keys' do
+        expect { |b|
+          hash.deep_transform_keys(&:to_s).deep.each(&b)
+        }.to yield_successive_args(*stringy_deep)
+      end
+
+      it 'does not replace keys in the original hash tree' do
+        hash.deep_transform_keys(&:to_s)
+        expect { |b|
+          hash.deep.each(&b)
+        }.to yield_successive_args(*expected_deep)
+      end
     end
 
     context '#deep_transform_keys!' do
-      pending 'tests not implemented'
+      it 'replaces keys in the original hash tree with transformed keys' do
+        hash.deep_transform_keys!(&:to_s)
+        expect { |b|
+          hash.deep.each(&b)
+        }.to yield_successive_args(*stringy_deep)
+      end
     end
 
     context '#deep_key_pathify' do
-      pending 'tests not implemented'
+      let(:hash) { { 'a.b' => 1, 'a.c' => 2, 'b' => 3 } }
+
+      it 'creates a nested hash tree from dotted keys' do
+        expect { |b|
+          hash.deep_key_pathify.deep.each(&b)
+        }.to yield_successive_args(*expected_deep)
+      end
     end
   end
 end
