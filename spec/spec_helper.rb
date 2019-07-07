@@ -12,8 +12,6 @@ if ENV['CODECOV_TOKEN']
   SimpleCov.formatter = SimpleCov::Formatter::Codecov
 end
 
-require 'key_tree'
-
 Dir[__dir__ + '/helpers/*.rb'].each { |helper| load helper }
 
 RSpec.configure do |config|

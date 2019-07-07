@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'key_tree'
+
 RSpec.describe KeyTree do
   it 'can create a key tree' do
     expect { KeyTree[] }.not_to raise_error

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'key_tree/tree'
+
 RSpec.describe KeyTree::Tree do
   context 'when initialized' do
     context 'with nothing' do

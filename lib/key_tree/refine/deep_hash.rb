@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../path'
-
 module KeyTree
   module Refine
     # Refinements to Hash for deep_ methods, for traversing nested structures
@@ -155,3 +153,5 @@ module KeyTree
     end
   end
 end
+
+require_relative '../path'

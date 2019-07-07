@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'key_tree/path'
+
 RSpec.describe KeyTree::Path do
   it 'is a subclass of array' do
     expect(KeyTree::Path.new).to be_an Array
