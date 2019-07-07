@@ -91,7 +91,7 @@ RSpec.describe KeyTree::Refine::DeepHash do
         }.to yield_successive_args(*updated_deep)
       end
 
-      it 'can defer value selection to a block', pending: 'BUG' do
+      it 'can defer value selection to a block' do
         expect { |b|
           hash.deep_merge!(update, &b)
         }.to yield_successive_args([%i[a b], 1, 2])
@@ -112,7 +112,7 @@ RSpec.describe KeyTree::Refine::DeepHash do
         }.to yield_successive_args(*expected_deep)
       end
 
-      it 'can defer value selection to a block', pending: 'BUG' do
+      it 'can defer value selection to a block' do
         expect { |b|
           hash.deep_merge(update, &b)
         }.to yield_successive_args([%i[a b], 1, 2])

@@ -77,11 +77,13 @@ module KeyTree
         #
         # :call-seq:
         #   deep_merge!(other) => self
-        #   deep_merge!(other) { |key, lhs, rhs| } => self
-        def deep_merge!(other)
+        #   deep_merge!(other) { |key_path, lhs, rhs| } => self
+        def deep_merge!(other, prefix = [], &block)
           merge!(other) do |key, lhs, rhs|
-            next lhs.merge!(rhs) if lhs.is_a?(Hash) && rhs.is_a?(Hash)
-            next yield(key, lhs, rhs) if block_given?
+            key_path = prefix + [key]
+            both_are_hashes = lhs.is_a?(Hash) && rhs.is_a?(Hash)
+            next lhs.deep_merge!(rhs, key_path, &block) if both_are_hashes
+            next yield(key_path, lhs, rhs) unless block.nil?
 
             rhs
           end
@@ -91,11 +93,13 @@ module KeyTree
         #
         # :call-seq:
         #   deep_merge(other) => self
-        #   deep_merge(other) { |key, lhs, rhs| } => self
-        def deep_merge(other)
+        #   deep_merge(other) { |key_path, lhs, rhs| } => self
+        def deep_merge(other, prefix = [], &block)
           merge(other) do |key, lhs, rhs|
-            next lhs.merge(rhs) if lhs.is_a?(Hash) && rhs.is_a?(Hash)
-            next yield(key, lhs, rhs) if block_given?
+            key_path = prefix + [key]
+            both_are_hashes = lhs.is_a?(Hash) && rhs.is_a?(Hash)
+            next lhs.deep_merge(rhs, key_path, &block) if both_are_hashes
+            next yield(key_path, lhs, rhs) unless block.nil?
 
             rhs
           end
