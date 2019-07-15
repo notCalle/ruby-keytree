@@ -78,6 +78,12 @@ RSpec.describe KeyTree do
               KeyTree.open(@tree_fixture).meta_data['file.path']
             ).to eq @tree_fixture
           end
+
+          it 'yields to a block, if given' do
+            expect { |b|
+              KeyTree.open(@tree_fixture, &b)
+            }.to yield_successive_args(KeyTree::Tree)
+          end
         end
       end
     end
