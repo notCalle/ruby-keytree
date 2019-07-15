@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'key_tree/forest'
+
 RSpec.describe KeyTree::Forest do
   it 'is a subclass of array' do
     expect(KeyTree::Forest[]).to be_an Array
@@ -76,6 +78,10 @@ RSpec.describe KeyTree::Forest do
       it 'can be flattened into a tree' do
         expect(KeyTree::Forest[@forest].flatten).to be_a KeyTree::Tree
       end
+
+      it 'contains the extected key paths' do
+        expect(KeyTree::Forest[@forest].key_paths).to match(@forest.key_paths)
+      end
     end
 
     context 'with trees and forests' do
@@ -112,6 +118,22 @@ RSpec.describe KeyTree::Forest do
       it 'hides forests behind trees' do
         expect(@forest['a']).to eq @tree2['a']
         expect(@forest['a.b']).to eq @tree2['a.b']
+      end
+
+      it 'can test if a key path is in the forest' do
+        expect(@forest.key?('a.b')).to be_truthy
+      end
+
+      it 'can test if a key path is not in the forest' do
+        expect(@forest.key?('b.a')).to be_falsey
+      end
+
+      it 'can test if a key path is a prefix in the forest' do
+        expect(@forest.prefix?('a')).to be_truthy
+      end
+
+      it 'can test if a key path is not a prefix in the forest' do
+        expect(@forest.prefix?('b')).to be_falsey
       end
     end
   end

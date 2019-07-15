@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'key_tree'
+
 RSpec.describe KeyTree do
   it 'can create a key tree' do
     expect { KeyTree[] }.not_to raise_error
@@ -75,6 +77,12 @@ RSpec.describe KeyTree do
             expect(
               KeyTree.open(@tree_fixture).meta_data['file.path']
             ).to eq @tree_fixture
+          end
+
+          it 'yields to a block, if given' do
+            expect { |b|
+              KeyTree.open(@tree_fixture, &b)
+            }.to yield_successive_args(KeyTree::Tree)
           end
         end
       end
