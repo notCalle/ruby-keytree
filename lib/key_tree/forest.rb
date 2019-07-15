@@ -110,23 +110,5 @@ module KeyTree # rubocop:disable Style/Documentation
     def key_paths
       trees.reduce(Set.new) { |result, tree| result.merge(tree.key_paths) }
     end
-
-    private
-
-    def tree_with_key(key)
-      result = trees.lazy.detect do |tree|
-        tree.prefix?(key)
-      end
-      result || raise(KeyError, %(key not found: "#{key}"))
-    end
-
-    def trees_with_key(key)
-      result = trees.select do |tree|
-        tree.prefix?(key)
-      end
-      raise(KeyError, %(key not found: "#{key}")) if result.empty?
-
-      result
-    end
   end
 end
