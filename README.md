@@ -8,6 +8,8 @@
 KeyTree manages trees of hashes, and (possibly nested) forests of such trees,
 allowing access to values by key path.
 
+See the [changelog](CHANGELOG.md) for recent changes.
+
 ## Installation
 
 Add this line to your application's Gemfile:
