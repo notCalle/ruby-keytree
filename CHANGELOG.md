@@ -1,3 +1,29 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+Older releases uses an ad-hoc release notes format, and follow at the end.
+
+
+## [Unreleased]
+
+
+## [0.7.0] - 2019-07-16
+
+### Changed
+
+- Removed leftover private methods from `KeyTree::Forest`, `#tree_with_key`
+  and `#trees_with_key`
+- Removed `KeyTree::Tree#fetch_default` method and simplified `#[]`
+
+
+[Unreleased]: https://github.com/notCalle/PROJECT/compare/v0.7.0..HEAD
+[0.7.0]: https://github.com/notCalle/PROJECT/compare/v0.6.1..v0.7.0
+[0.6.1]: https://github.com/notCalle/PROJECT/releases/tag/v0.6.1
+
+
 # Release Notes
 
 ## v0.6.1 – 2018-05-31

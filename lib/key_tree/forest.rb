@@ -57,6 +57,7 @@ module KeyTree # rubocop:disable Style/Documentation
       end
       return yield(key) if block_given?
       return default.first unless default.empty?
+
       raise KeyError, %(key not found: "#{key}")
     end
 
@@ -99,6 +100,7 @@ module KeyTree # rubocop:disable Style/Documentation
         remaining = [self]
         remaining.each do |woods|
           next yielder << woods if woods.is_a?(Tree)
+
           woods.each { |wood| remaining << wood }
         end
       end
@@ -107,23 +109,6 @@ module KeyTree # rubocop:disable Style/Documentation
     # Return all visible key paths in the forest
     def key_paths
       trees.reduce(Set.new) { |result, tree| result.merge(tree.key_paths) }
-    end
-
-    private
-
-    def tree_with_key(key)
-      result = trees.lazy.detect do |tree|
-        tree.prefix?(key)
-      end
-      result || raise(KeyError, %(key not found: "#{key}"))
-    end
-
-    def trees_with_key(key)
-      result = trees.select do |tree|
-        tree.prefix?(key)
-      end
-      raise(KeyError, %(key not found: "#{key}")) if result.empty?
-      result
     end
   end
 end

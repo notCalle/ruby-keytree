@@ -17,77 +17,82 @@ require 'key_tree/tree'
 module KeyTree
   using Refinements
 
-  def self.[](contents = {})
-    contents.to_key_wood
-  end
-
-  # Load a KeyTree from some external serialization
-  #
-  # load +type+: +serialization+
-  # load +key_prefix+, +type+: +serialization+
-  #
-  # +type+ is upcased to form a class name that should provide a
-  # +.load+ class method (like YAML or JSON does).
-  #
-  # If a +key_prefix+ is given, it will be prepended to the loaded data.
-  #
-  # Examples:
-  #   load(:yaml, "---\na: 1\n")
-  # => {"a" => 1}
-  #
-  #   load(:yaml, "---\nb: 2\n", prefix: 'a')
-  # => {"a.b" => 2}
-  #
-  def self.load(type, serialization, prefix: nil)
-    type = type.to_sym unless type.nil?
-    loader = Loader[type]
-    contents = loader.load(serialization)
-    contents = { prefix => contents } unless prefix.nil?
-
-    contents.to_key_wood.with_meta_data do |meta_data|
-      meta_data << { load: { type: type, loader: loader } }
-      meta_data << { load: { prefix: prefix } } unless prefix.nil?
-    end
-  end
-
-  # Open an external file and load contents into a KeyTree
-  # When the file basename begins with 'prefix@', the prefix
-  # is prepended to all keys in the filee.
-  def self.open(file_name)
-    type = File.extname(file_name)[/[^.]+/]
-    prefix = File.basename(file_name)[/(.+)@/, 1]
-
-    keytree = File.open(file_name, mode: 'rb:utf-8') do |file|
-      load_from_file(file, type, prefix)
+  class << self
+    def [](contents = {})
+      contents.to_key_wood
     end
 
-    return keytree unless block_given?
-    yield(keytree)
-  end
+    # Load a KeyTree from some external serialization
+    #
+    # load +type+: +serialization+
+    # load +key_prefix+, +type+: +serialization+
+    #
+    # +type+ is upcased to form a class name that should provide a
+    # +.load+ class method (like YAML or JSON does).
+    #
+    # If a +key_prefix+ is given, it will be prepended to the loaded data.
+    #
+    # Examples:
+    #   load(:yaml, "---\na: 1\n")
+    # => {"a" => 1}
+    #
+    #   load(:yaml, "---\nb: 2\n", prefix: 'a')
+    # => {"a.b" => 2}
+    #
+    def load(type, serialization, prefix: nil)
+      type = type.to_sym unless type.nil?
+      loader = Loader[type]
+      contents = loader.load(serialization)
+      contents = { prefix => contents } unless prefix.nil?
 
-  # Open all files in a directory and load their contents into
-  # a Forest of Trees, optionally following symlinks, and recursing.
-  def self.open_all(dir_name, follow_links: false, recurse: false)
-    Dir.children(dir_name).reduce(KeyTree::Forest.new) do |result, file|
-      path = File.join(dir_name, file)
-      next result if File.symlink?(path) && !follow_links
-      stat = File.stat(path)
-      # rubocop:disable Security/Open
-      next result << open(path) if stat.file?
-      # rubocop:enable Security/Open
-      next result unless recurse && stat.directory?
-      result << open_all(path, follow_links: follow_links, recurse: true)
+      contents.to_key_wood.with_meta_data do |meta_data|
+        meta_data << { load: { type: type, loader: loader } }
+        meta_data << { load: { prefix: prefix } } unless prefix.nil?
+      end
     end
-  end
 
-  private_class_method
+    # Open an external file and load contents into a KeyTree
+    # When the file basename begins with 'prefix@', the prefix
+    # is prepended to all keys in the filee.
+    def open(file_name)
+      type = File.extname(file_name)[/[^.]+/]
+      prefix = File.basename(file_name)[/(.+)@/, 1]
 
-  def self.load_from_file(file, type, prefix)
-    load(type, file.read, prefix: prefix).with_meta_data do |meta_data|
-      file_path = file.path
-      meta_data << { file: { path: file_path,
-                             name: File.basename(file_path),
-                             dir: File.dirname(file_path) } }
+      keytree = File.open(file_name, mode: 'rb:utf-8') do |file|
+        load_from_file(file, type, prefix)
+      end
+
+      return keytree unless block_given?
+
+      yield keytree
+    end
+
+    # Open all files in a directory and load their contents into
+    # a Forest of Trees, optionally following symlinks, and recursing.
+    def open_all(dir_name, follow_links: false, recurse: false)
+      Dir.children(dir_name).reduce(KeyTree::Forest.new) do |result, file|
+        path = File.join(dir_name, file)
+        next result if File.symlink?(path) && !follow_links
+
+        stat = File.stat(path)
+        # rubocop:disable Security/Open
+        next result << open(path) if stat.file?
+        # rubocop:enable Security/Open
+        next result unless recurse && stat.directory?
+
+        result << open_all(path, follow_links: follow_links, recurse: true)
+      end
+    end
+
+    private
+
+    def load_from_file(file, type, prefix)
+      load(type, file.read, prefix: prefix).with_meta_data do |meta_data|
+        file_path = file.path
+        meta_data << { file: { path: file_path,
+                               name: File.basename(file_path),
+                               dir: File.dirname(file_path) } }
+      end
     end
   end
 end

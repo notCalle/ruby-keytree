@@ -16,7 +16,7 @@ module KeyTree # rubocop:disable Style/Documentation
     #
     def self.[](*key_paths)
       key_paths.reduce(Path.new) do |result, key_path|
-        result << key_path.to_key_path
+        result << Path.new(key_path)
       end
     end
 
@@ -41,9 +41,7 @@ module KeyTree # rubocop:disable Style/Documentation
       end
     end
 
-    def to_key_path
-      self
-    end
+    alias to_key_path itself
 
     def to_s
       join('.')
@@ -64,10 +62,11 @@ module KeyTree # rubocop:disable Style/Documentation
     # Returns a key path without the leading +prefix+
     #
     # :call-seq:
-    #   Path - other => Path
-    def -(other)
+    #   drop(other) => Path
+    def drop(other)
       other = other.to_key_path
       raise KeyError unless prefix?(other)
+
       super(other.length)
     end
 
@@ -78,6 +77,7 @@ module KeyTree # rubocop:disable Style/Documentation
     def prefix?(other)
       other = other.to_key_path
       return false if other.length > length
+
       key_enum = each
       other.all? { |other_key| key_enum.next == other_key }
     end

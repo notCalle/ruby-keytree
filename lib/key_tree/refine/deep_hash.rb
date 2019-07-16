@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-require_relative '../path'
-
 module KeyTree
   module Refine
     # Refinements to Hash for deep_ methods, for traversing nested structures
     module DeepHash
-      refine Hash do # rubocop:disable Metrics/BlockLength
+      refine Hash do
         # Return a deep enumerator for all (+key_path+, +value+) pairs in a
         # nested hash structure.
         #
@@ -34,6 +32,7 @@ module KeyTree
           end
           return yield(key_path) if block_given?
           return default.first unless default.empty?
+
           raise KeyError, %(key path invalid: "#{key_path}")
         end
 
@@ -49,6 +48,7 @@ module KeyTree
           result = prefix_path.reduce(self) do |hash, key|
             result = hash.fetch(key) { hash[key] = {} }
             next result if result.is_a?(Hash)
+
             raise KeyError, %(prefix has value: "#{key_path}")
           end
           result[last_key] = new_value
@@ -65,6 +65,7 @@ module KeyTree
           result = prefix_path.reduce(self) do |hash, key|
             result = hash.fetch(key, nil)
             next result if result.is_a?(Hash)
+
             raise KeyError, %(prefix has value: "#{key_path}")
           end
           result.delete(last_key)
@@ -74,11 +75,14 @@ module KeyTree
         #
         # :call-seq:
         #   deep_merge!(other) => self
-        #   deep_merge!(other) { |key, lhs, rhs| } => self
-        def deep_merge!(other)
+        #   deep_merge!(other) { |key_path, lhs, rhs| } => self
+        def deep_merge!(other, prefix = [], &block)
           merge!(other) do |key, lhs, rhs|
-            next lhs.merge!(rhs) if lhs.is_a?(Hash) && rhs.is_a?(Hash)
-            next yield(key, lhs, rhs) if block_given?
+            key_path = prefix + [key]
+            both_are_hashes = lhs.is_a?(Hash) && rhs.is_a?(Hash)
+            next lhs.deep_merge!(rhs, key_path, &block) if both_are_hashes
+            next yield(key_path, lhs, rhs) unless block.nil?
+
             rhs
           end
         end
@@ -87,11 +91,14 @@ module KeyTree
         #
         # :call-seq:
         #   deep_merge(other) => self
-        #   deep_merge(other) { |key, lhs, rhs| } => self
-        def deep_merge(other)
+        #   deep_merge(other) { |key_path, lhs, rhs| } => self
+        def deep_merge(other, prefix = [], &block)
           merge(other) do |key, lhs, rhs|
-            next lhs.merge(rhs) if lhs.is_a?(Hash) && rhs.is_a?(Hash)
-            next yield(key, lhs, rhs) if block_given?
+            key_path = prefix + [key]
+            both_are_hashes = lhs.is_a?(Hash) && rhs.is_a?(Hash)
+            next lhs.deep_merge(rhs, key_path, &block) if both_are_hashes
+            next yield(key_path, lhs, rhs) unless block.nil?
+
             rhs
           end
         end
@@ -104,6 +111,7 @@ module KeyTree
           result = transform_keys(&block)
           result.transform_values! do |value|
             next value unless value.is_a?(Hash)
+
             value.deep_transform_keys(&block)
           end
         end
@@ -116,6 +124,7 @@ module KeyTree
           result = transform_keys!(&block)
           result.transform_values! do |value|
             next value unless value.is_a?(Hash)
+
             value.deep_transform_keys!(&block)
           end
         end
@@ -144,3 +153,5 @@ module KeyTree
     end
   end
 end
+
+require_relative '../path'

@@ -1,9 +1,14 @@
-[![Gem Version](https://badge.fury.io/rb/key_tree.svg)](https://badge.fury.io/rb/key_tree) [![Maintainability](https://api.codeclimate.com/v1/badges/ac48756e80007e0cd6f9/maintainability)](https://codeclimate.com/github/notCalle/ruby-keytree/maintainability)
+[![Gem Version](https://badge.fury.io/rb/key_tree.svg)](https://badge.fury.io/rb/key_tree)
+[![Maintainability](https://api.codeclimate.com/v1/badges/ac48756e80007e0cd6f9/maintainability)](https://codeclimate.com/github/notCalle/ruby-keytree/maintainability)
+[![codecov](https://codecov.io/gh/notCalle/ruby-keytree/branch/master/graph/badge.svg)](https://codecov.io/gh/notCalle/ruby-keytree)
+[![Build Status](https://dev.azure.com/notCalle/GitHub%20CI/_apis/build/status/notCalle.ruby-keytree?branchName=master)](https://dev.azure.com/notCalle/GitHub%20CI/_build/latest?definitionId=3&branchName=master)
 
 # KeyTree
 
 KeyTree manages trees of hashes, and (possibly nested) forests of such trees,
 allowing access to values by key path.
+
+See the [changelog](CHANGELOG.md) for recent changes.
 
 ## Installation
 

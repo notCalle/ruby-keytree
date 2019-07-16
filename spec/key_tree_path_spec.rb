@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'key_tree/path'
+
 RSpec.describe KeyTree::Path do
   it 'is a subclass of array' do
     expect(KeyTree::Path.new).to be_an Array
@@ -61,6 +63,14 @@ RSpec.describe KeyTree::Path do
         it 'includes the key as a symbol' do
           expect(KeyTree::Path[@string]).to include @string.to_sym
         end
+
+        it 'has a string representation equal to the string' do
+          expect(KeyTree::Path[@string].to_s).to eq @string
+        end
+
+        it 'can be inspected like a string' do
+          expect(KeyTree::Path[@string].inspect).to eq @string.inspect
+        end
       end
 
       context 'that is a dot-separated path of keys' do
@@ -81,6 +91,14 @@ RSpec.describe KeyTree::Path do
 
         it 'is equivalent to initializing from an array of symbols' do
           expect(KeyTree::Path[@string]).to eq KeyTree::Path[@keys]
+        end
+
+        it 'has a string representation equal to the string' do
+          expect(KeyTree::Path[@string].to_s).to eq @string
+        end
+
+        it 'can be inspected like a string' do
+          expect(KeyTree::Path[@string].inspect).to eq @string.inspect
         end
       end
     end
@@ -157,5 +175,20 @@ RSpec.describe KeyTree::Path do
         end
       end
     end
+  end
+
+  it 'can detect conflicting key path overlaps', :aggregate_failures do
+    path1 = KeyTree::Path['a.b.c']
+    path2 = KeyTree::Path['a.b']
+
+    expect(path1.conflict?(path2)).to be true
+    expect(path2.conflict?(path1)).to be true
+  end
+
+  it 'can drop a prefix from a key path' do
+    path1 = KeyTree::Path['a.b.c']
+    path2 = KeyTree::Path['a.b']
+
+    expect(path1.drop(path2)).to eq KeyTree::Path['c']
   end
 end

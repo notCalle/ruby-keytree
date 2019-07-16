@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'key_tree/tree'
+
 RSpec.describe KeyTree::Tree do
   context 'when initialized' do
     context 'with nothing' do
@@ -77,6 +79,30 @@ RSpec.describe KeyTree::Tree do
       it 'can return a YAML serialization' do
         expect(@keytree.to_yaml).to eq @str_hash.to_yaml
       end
+
+      it 'can fetch the list of values at some key paths' do
+        expect(@keytree.values_at(*@keys)).to eq @values.to_a
+      end
+    end
+
+    context 'when merged' do
+      subject { KeyTree::Tree[a: { b: 1 }, c: 2] }
+      let(:other) { KeyTree::Tree[a: { b: 2, c: 3 }, c: { d: 4 }] }
+      let(:key_paths) { other.key_paths }
+
+      it 'returns a key tree' do
+        expect(subject.merge(other)).to be_a KeyTree::Tree
+      end
+
+      it 'contains the new keys' do
+        expect(subject.merge(other).key_paths).to match key_paths
+      end
+
+      it 'contains the new values' do
+        expect(
+          subject.merge(other).values_at(*key_paths)
+        ).to match other.values_at(*key_paths)
+      end
     end
 
     context 'with a hash, having key_pathey keys' do
@@ -104,6 +130,10 @@ RSpec.describe KeyTree::Tree do
           expect(@keytree.fetch(key_path)).to eq value
         end
       end
+
+      it 'can fetch the list of values at some key paths' do
+        expect(@keytree.values_at(*@hash.keys)).to eq @hash.values
+      end
     end
   end
 
@@ -120,6 +150,12 @@ RSpec.describe KeyTree::Tree do
     it 'deletes child keys' do
       @keytree['a'] = 1
       expect(@keytree).not_to have_key_path('a.b')
+    end
+
+    it 'overwrites values for deeper keys' do
+      @keytree['a.b.c'] = 1
+      expect(@keytree).not_to have_key_path('a.b')
+      expect(@keytree).to have_key_path('a.b.c')
     end
   end
 end

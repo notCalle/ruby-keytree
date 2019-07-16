@@ -45,17 +45,11 @@ module KeyTree # rubocop:disable Style/Documentation
     end
 
     def [](key_path)
-      fetch_default(key_path, default)
-    end
+      fetch(key_path) do
+        next default if default_proc.nil?
 
-    def fetch_default(key_path, *default)
-      catch do |ball|
-        return fetch(key_path) { throw ball }
+        default_proc.call(self, key_path)
       end
-      return default_proc.call(self, key_path) unless default_proc.nil?
-      return yield(key_path) if block_given?
-      return default.first unless default.empty?
-      raise KeyError, %(key not found: "#{key_path}")
     end
 
     def fetch(key_path, *args, &key_missing)
@@ -115,6 +109,7 @@ module KeyTree # rubocop:disable Style/Documentation
       key_path.to_key_path.reduce(@hash) do |subtree, key|
         return false unless subtree.is_a?(Hash)
         return false unless subtree.key?(key)
+
         subtree[key]
       end
       true
