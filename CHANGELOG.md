@@ -9,6 +9,14 @@ Older releases uses an ad-hoc release notes format, and follow at the end.
 
 ## [Unreleased]
 
+## Added
+
+- Supports Ruby version 3.
+
+## Changed
+
+- Updated dependencies.
+
 
 ## [0.7.0] - 2019-07-16
 
