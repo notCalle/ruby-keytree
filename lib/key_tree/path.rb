@@ -28,17 +28,12 @@ module KeyTree # rubocop:disable Style/Documentation
     #
     # Example:
     #   KeyTree::Path.new("a.b.c")
-    #   => ["a", "b", "c"]
+    #   => [:a, :b, :c]
     #
-    def initialize(key_path = nil)
-      case key_path
-      when NilClass
-        nil
-      when Array
-        concat(key_path.map(&:to_sym))
-      else
-        initialize(key_path.to_key_path)
-      end
+    def initialize(key_path = [])
+      key_path = key_path.to_key_path unless key_path.is_a? Array
+
+      super(key_path.map(&:to_sym))
     end
 
     alias to_key_path itself
