@@ -9,11 +9,16 @@ Older releases uses an ad-hoc release notes format, and follow at the end.
 
 ## [Unreleased]
 
-## Added
+
+## [0.8.0]
+
+This release bumps minimum Ruby version to 2.6, and adds support for Ruby version 3.
+
+### Added
 
 - Supports Ruby version 3.
 
-## Changed
+### Changed
 
 - Updated dependencies.
 
@@ -27,7 +32,8 @@ Older releases uses an ad-hoc release notes format, and follow at the end.
 - Removed `KeyTree::Tree#fetch_default` method and simplified `#[]`
 
 
-[Unreleased]: https://github.com/notCalle/PROJECT/compare/v0.7.0..HEAD
+[Unreleased]: https://github.com/notCalle/PROJECT/compare/v0.8.0..HEAD
+[0.8.0]: https://github.com/notCalle/PROJECT/compare/v0.7.0..v0.8.0
 [0.7.0]: https://github.com/notCalle/PROJECT/compare/v0.6.1..v0.7.0
 [0.6.1]: https://github.com/notCalle/PROJECT/releases/tag/v0.6.1
 
