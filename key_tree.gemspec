@@ -6,15 +6,16 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'key_tree/version'
 
 dev_deps = {
-  'bundler' => '~> 2.0',
-  'codecov' => '~> 0.1',
-  'git-version-bump' => '~> 0.15',
-  'pry' => '~> 0.11',
-  'rake' => '~> 10.0',
-  'rspec' => '~> 3.0',
-  'rubocop' => '~> 0.57',
-  'ruby-prof' => '~> 0.17',
-  'simplecov' => '~> 0.16'
+  'bundler' => '~> 2.2',
+  'codecov' => '~> 0.5.0',
+  'pry' => '~> 0.14.0',
+  'rake' => '~> 13.0',
+  'rspec' => '~> 3.10',
+  'rubocop' => '~> 1.15',
+  'rubocop-rake' => '~> 0.5.1',
+  'rubocop-rspec' => '~> 2.3',
+  'ruby-prof' => '>= 1.4',
+  'simplecov' => '~> 0.21.0'
 }
 
 Gem::Specification.new do |spec|
@@ -35,7 +36,9 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.platform = Gem::Platform::RUBY
-  spec.required_ruby_version = '~> 2.3'
+  spec.required_ruby_version = '>= 2.6', '< 4.0'
+
+  spec.add_dependency 'git-version-bump', '~> 0.17.0'
 
   dev_deps.each { |d| spec.add_development_dependency(*d) }
 end
