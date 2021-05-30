@@ -12,7 +12,7 @@ if ENV['CODECOV_TOKEN']
   SimpleCov.formatter = SimpleCov::Formatter::Codecov
 end
 
-Dir[__dir__ + '/helpers/*.rb'].each { |helper| load helper }
+Dir["#{__dir__}/helpers/*.rb"].each { |helper| load helper }
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
