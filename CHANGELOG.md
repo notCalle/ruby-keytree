@@ -9,6 +9,10 @@ Older releases uses an ad-hoc release notes format, and follow at the end.
 
 ## [Unreleased]
 
+### Changed
+
+- Updated `bundler` development dependency for CVE-2021-43809
+
 
 ## [0.8.0]
 
